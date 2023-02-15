@@ -1,8 +1,16 @@
 {
-  "name": "@example/blog",
+  "name": "@stayradiated/george.czabania.com",
   "type": "module",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "private": true,
+  "description": "My personal website",
+  "author": "George Czabania <george@czabania.com>",
+  "homepage": "https://george.czabania.com/",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stayradiated/george.czabania.com.git"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -11,19 +19,17 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/image": "0.14.0",
+    "@astrojs/image": "0.14.1",
     "@astrojs/mdx": "^0.16.0",
     "@astrojs/react": "2.0.2",
     "@astrojs/rss": "^2.1.0",
     "@astrojs/sitemap": "^1.0.1",
-    "@types/react": "^18.0.21",
-    "@types/react-dom": "^18.0.6",
-    "astro": "^2.0.5",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "astro": "^2.0.11",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "sharp": "0.31.3",
-    "three": "0.149.0",
-    "zdog": "1.1.3",
-    "zfont": "1.2.8"
+    "three": "0.149.0"
   }
 }

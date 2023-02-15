@@ -1,0 +1,82 @@
+---
+title: "Toggling Switches"
+tag: code
+date: 2020-04-18T13:44:41+12:00
+---
+
+import FlatNodeTree from './flat-node-tree'
+import { randomFlatNodes } from './tree-utils'
+
+<FlatNodeTree nodes={randomFlatNodes()} />
+
+```typescript
+type NodeId = string
+
+interface Node {
+    id: NodeId
+    children: NodeId[]
+    parent: NodeId
+}
+
+export const assocNodeVisibilityState = (
+    nodes: Node[],
+    visibleNodeIds: NodeId[],
+) => {
+    const nodeIdLookupMap = nodes.reduce((map, node) => {
+        map.set(node.id, node)
+        return map
+    }, new Map<NodeId, Node>())
+
+    const visibleNodeIdSet = new Set<NodeId>()
+    const invisibleNodeIdSet = new Set<NodeId>()
+
+    const addNodeAndParentsToSet = (node: Node, set: Set<NodeId>) => {
+        set.add(node.id)
+        if (node.parent == null) {
+            return
+        }
+
+        const parentNode = nodeIdLookupMap.get(node.parent)
+        if (parentNode == null) {
+            return
+        }
+
+        // if the parent node is already in the set, we can stop here
+        if (set.has(node.parent) === true) {
+            return
+        }
+
+        addNodeAndParentsToSet(parentNode, set)
+    }
+
+    for (const node of nodes) {
+        const isLeafNode = node.children == null || node.children.length === 0
+        if (isLeafNode) {
+            const isNodeVisible = visibleNodeIds.includes(node.id)
+            if (isNodeVisible) {
+                addNodeAndParentsToSet(node, visibleNodeIdSet)
+            } else {
+                addNodeAndParentsToSet(node, invisibleNodeIdSet)
+            }
+        }
+    }
+
+    return nodes.map(node => {
+        const isVisible = visibleNodeIdSet.has(node.id)
+        const isInvisible = invisibleNodeIdSet.has(node.id)
+
+        const toggleState =
+            isInvisible && isVisible
+                ? ToggleState.MIXED
+                : isVisible
+                ? ToggleState.ON
+                : ToggleState.OFF
+
+        return {
+            ...node,
+            toggleState,
+            isVisible,
+        }
+    })
+}
+```

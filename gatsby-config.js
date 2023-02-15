@@ -59,6 +59,20 @@ plugins.push(
  */
 
 /*
+ * [Plugin]: Typescript
+ * https://www.gatsbyjs.org/packages/gatsby-plugin-typescript/
+ *
+ * Provides drop-in support for TypeScript and TSX.
+ */
+plugins.push({
+  resolve: 'gatsby-plugin-typescript',
+  options: {
+    isTSX: true,
+    allExtensions: true,
+  },
+})
+
+/*
  * [Plugin] Manifest
  * https://www.npmjs.com/package/gatsby-plugin-manifest
  *

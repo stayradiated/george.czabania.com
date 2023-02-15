@@ -1,0 +1,48 @@
+---
+title: "Git Guru"
+date: 2019-03-16T22:13:16+13:00
+---
+
+Yesterday I started a new project.
+
+Quick background:
+
+1. At Mish Guru we use Github to manage our code.
+2. When a developer wants to submit a change, such as adding a feature or
+   fixing a bug, they create a Pull Request (PR).
+3. This PR has a title, description of why the change was made and a list of
+   all the files that were edited.
+4. Before the PR can be accepted, it must first be reviewed by at least one
+   other member of the team.
+5. Each day several PRs will be created, some are small changes and don't take
+   very long to review, others can be quite large and may require a bit of
+   back-and-forth before they are accepted.
+
+Cool. So, we have all these PRs, and we need a way to keep track of
+them all. We currently use [Seal](https://github.com/binaryberry/seal) - which
+does a pretty good job of posting a list of all open PRs on Slack.
+
+![Seal](/blog/2019_03_16/seal.jpg)
+
+However, it could be better.
+
+- All PRs are listed in a single slack post. This makes it difficult to comment
+  on a particular PR. We also can't check off each PR as we review it.
+- We use Clubhouse at Mish to keep track of what we are working on, and each PR
+  should be linked to a Clubhouse card. It would be useful if we could get that
+  link displayed in Slack, and also highlight which PRs haven't been linked.
+- The person who opened the PR is displayed, but Seal shows their github
+  username. At Mish we usually refer to each by our real names. E.g. I would
+  like "George Czabania" displayed instead of "stayradiated".
+- Support for custom validation checks. We want to encourage team members to
+  write a description for their PR, but it can be easy to forget. If
+  a PR is missing a description, then it should encourage them to write one.
+
+So I started a new project called "Git Guru". It uses the Github REST API to
+fetch all the open pull requests, and formats the data as a pretty nice looking
+Slack attachment. 
+
+It's all open source and you can find the repo at
+https://github.com/mishguruorg/gitguru
+
+![Git Guru](/blog/2019_03_16/gitguru.png)

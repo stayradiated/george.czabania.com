@@ -1,0 +1,9 @@
+.list-item {
+  display: flex;
+  justify-content: space-between;
+
+  list-style-type: none;
+  background: #eee;
+  line-height: 2;
+  margin-bottom: 1px;
+}

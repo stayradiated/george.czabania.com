@@ -54,6 +54,7 @@ const noteContent = !title && !description ? createExcerpt(post.body) : null;
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .note-date {
     color: #6b7280;
@@ -62,7 +63,6 @@ const noteContent = !title && !description ? createExcerpt(post.body) : null;
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
-    margin-bottom: 0.5rem;
   }
   .note-tag {
     padding: 0.125rem 0.375rem;
@@ -94,19 +94,6 @@ const noteContent = !title && !description ? createExcerpt(post.body) : null;
 </style>
 
 <article class="note-card">
-  {tags.length > 0 && (
-    <div class="note-tags">
-      {tags.map(tag => (
-        <a 
-          href={`/tags/${tag}`} 
-          class="note-tag"
-        >
-          #{tag}
-        </a>
-      ))}
-    </div>
-  )}
-  
   {title && (
     <div class="note-title">{title}</div>
   )}
@@ -128,6 +115,18 @@ const noteContent = !title && !description ? createExcerpt(post.body) : null;
           year: 'numeric'
         })}
       </time>
+      {tags.length > 0 && (
+        <div class="note-tags">
+          {tags.map(tag => (
+            <a 
+              href={`/tags/${tag}`} 
+              class="note-tag"
+            >
+              #{tag}
+            </a>
+          ))}
+        </div>
+      )}
     </div>
     <a href={`/blog/${post.id}`} class="note-permalink">
       Permalink

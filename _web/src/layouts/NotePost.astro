@@ -30,7 +30,6 @@ const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem;
-    margin-bottom: 1rem;
   }
   .note-post-tag {
     padding: 0.125rem 0.375rem;
@@ -92,6 +91,12 @@ const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
     font-size: 0.75rem;
     color: #6b7280;
   }
+  .note-post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
   .note-post-date {
     color: #6b7280;
   }
@@ -112,19 +117,6 @@ const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
 <Layout title={pageTitle} description={pageDescription}>
   <div class="note-container">
     <article class="note-post">
-      {tags.length > 0 && (
-        <div class="note-post-tags">
-          {tags.map(tag => (
-            <a 
-              href={`/tags/${tag}`} 
-              class="note-post-tag"
-            >
-              #{tag}
-            </a>
-          ))}
-        </div>
-      )}
-      
       {title && (
         <h1 class="note-post-title">{title}</h1>
       )}
@@ -134,15 +126,29 @@ const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
       </div>
       
       <footer class="note-post-footer">
-        <time datetime={date.toISOString()} class="note-post-date">
-          {date.toLocaleDateString('en-US', { 
-            hour: 'numeric',
-            minute: '2-digit',
-            month: 'short', 
-            day: 'numeric',
-            year: 'numeric'
-          })}
-        </time>
+        <div class="note-post-meta">
+          <time datetime={date.toISOString()} class="note-post-date">
+            {date.toLocaleDateString('en-US', { 
+              hour: 'numeric',
+              minute: '2-digit',
+              month: 'short', 
+              day: 'numeric',
+              year: 'numeric'
+            })}
+          </time>
+          {tags.length > 0 && (
+            <div class="note-post-tags">
+              {tags.map(tag => (
+                <a 
+                  href={`/tags/${tag}`} 
+                  class="note-post-tag"
+                >
+                  #{tag}
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
         <div class="note-post-actions">
           <a href="/notes" class="note-post-action">← All Notes</a>
         </div>

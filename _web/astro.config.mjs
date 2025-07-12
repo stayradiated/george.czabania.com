@@ -4,8 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://stayradiated.github.io',
-  base: '/obsidian-public',
+  site: 'https://george.czabania.com',
   integrations: [sitemap()],
   output: 'static',
 });

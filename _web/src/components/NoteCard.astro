@@ -1,0 +1,117 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const { title, date, tags, description } = post.data;
+---
+
+<style>
+  .note-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #ffffff;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease-in-out;
+  }
+  .note-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+  .note-content {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 0.75rem;
+    color: #1f2937;
+  }
+  .note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+  .note-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .note-date {
+    color: #6b7280;
+  }
+  .note-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .note-tag {
+    padding: 0.125rem 0.375rem;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    font-size: 0.6875rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .note-tag:hover {
+    background-color: #e5e7eb;
+  }
+  .note-permalink {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.75rem;
+  }
+  .note-permalink:hover {
+    text-decoration: underline;
+  }
+  .note-title {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+</style>
+
+<article class="note-card">
+  {tags.length > 0 && (
+    <div class="note-tags">
+      {tags.map(tag => (
+        <a 
+          href={`/tags/${tag}`} 
+          class="note-tag"
+        >
+          #{tag}
+        </a>
+      ))}
+    </div>
+  )}
+  
+  {title && (
+    <div class="note-title">{title}</div>
+  )}
+  
+  {description && (
+    <div class="note-content">{description}</div>
+  )}
+  
+  <div class="note-footer">
+    <div class="note-meta">
+      <time datetime={date.toISOString()} class="note-date">
+        {date.toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: 'numeric',
+          year: 'numeric'
+        })}
+      </time>
+    </div>
+    <a href={`/blog/${post.id}`} class="note-permalink">
+      Permalink
+    </a>
+  </div>
+</article>

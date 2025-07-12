@@ -1,0 +1,19 @@
+.claude/settings.local.json
+
+# Astro/Node.js build output
+_web/dist/
+# generated types
+_web/.astro/
+
+# dependencies
+_web/node_modules/
+
+# logs
+_web/npm-debug.log*
+_web/yarn-debug.log*
+_web/yarn-error.log*
+_web/pnpm-debug.log*
+
+# environment variables
+_web/.env
+_web/.env.production

@@ -1,0 +1,43 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description || "Personal blog"} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalURL} />
+    <title>{title}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-white text-gray-900 font-mono leading-relaxed">
+    <div class="max-w-2xl mx-auto px-4 py-8">
+      <header class="mb-8">
+        <nav class="flex items-center justify-between">
+          <a href={import.meta.env.BASE_URL} class="text-xl font-bold hover:underline">Blog</a>
+          <div class="space-x-4">
+            <a href={`${import.meta.env.BASE_URL}/posts`} class="hover:underline">Posts</a>
+            <a href={`${import.meta.env.BASE_URL}/notes`} class="hover:underline">Notes</a>
+            <a href={`${import.meta.env.BASE_URL}/archive`} class="hover:underline">Archive</a>
+          </div>
+        </nav>
+      </header>
+      <main>
+        <slot />
+      </main>
+      <footer class="mt-16 pt-8 border-t border-gray-200 text-sm text-gray-600">
+        <p>&copy; {new Date().getFullYear()} Personal Blog. <a href={`${import.meta.env.BASE_URL}/rss.xml`} class="hover:underline">RSS</a></p>
+      </footer>
+    </div>
+  </body>
+</html>

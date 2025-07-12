@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PostCard from '../components/PostCard.astro';
+import { getPublishedNotes } from '../lib/published';
+
+const notes = await getPublishedNotes();
+---
+
+<Layout title="Notes" description="Quick thoughts and micro-posts">
+  <h1 class="text-2xl font-bold mb-8">Notes</h1>
+  
+  {notes.length === 0 ? (
+    <p class="text-gray-600">No notes published yet.</p>
+  ) : (
+    <div>
+      {notes.map(note => (
+        <PostCard post={note} />
+      ))}
+    </div>
+  )}
+</Layout>

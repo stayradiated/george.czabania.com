@@ -1,0 +1,47 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getAllPublishedPosts, groupPostsByYearMonth } from '../lib/published';
+
+const posts = await getAllPublishedPosts();
+const postsByMonth = groupPostsByYearMonth(posts);
+
+// Sort months in descending order
+const sortedMonths = Array.from(postsByMonth.keys()).sort((a, b) => b.localeCompare(a));
+---
+
+<Layout title="Archive" description="Posts organized by date">
+  <h1 class="text-2xl font-bold mb-8">Archive</h1>
+  
+  {sortedMonths.length === 0 ? (
+    <p class="text-gray-600">No posts published yet.</p>
+  ) : (
+    <div class="space-y-8">
+      {sortedMonths.map(month => {
+        const monthPosts = postsByMonth.get(month)!;
+        const [year, monthNum] = month.split('-');
+        const monthName = new Date(parseInt(year), parseInt(monthNum) - 1).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long' 
+        });
+        
+        return (
+          <section>
+            <h2 class="text-xl font-semibold mb-4 text-gray-800">{monthName}</h2>
+            <ul class="space-y-2">
+              {monthPosts.map(post => (
+                <li class="flex items-baseline justify-between">
+                  <a href={`/blog/${post.slug}`} class="hover:underline text-blue-600">
+                    {post.data.title}
+                  </a>
+                  <span class="text-sm text-gray-500 ml-4">
+                    {post.data.date.getDate()}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })}
+    </div>
+  )}
+</Layout>

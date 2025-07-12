@@ -1,6 +1,8 @@
-# Obsidian-to-Astro Blog
+# george.czabania.com
 
-A friction-free mobile blogging system that enables writing and publishing blog posts directly from iPhone using Obsidian, with automatic deployment to GitHub Pages via Astro.
+A friction-free mobile blogging system that enables writing and publishing blog
+posts directly from iPhone using Obsidian, with automatic deployment to GitHub
+Pages via Astro.
 
 ## 🎯 Features
 
@@ -22,29 +24,29 @@ iPhone Obsidian → Working Copy → GitHub → GitHub Actions → GitHub Pages
 
 ```
 ├── .github/workflows/deploy.yml    # GitHub Actions deployment
-├── public-blog/                    # Obsidian vault content
-│   ├── notes/                      # Quick thoughts (type: note)
-│   └── posts/                      # Longer articles (type: post)
-├── .obsidian/templates/             # Templater templates
+│   notes/                          # Quick thoughts (type: note)
+│   posts/                          # Longer articles (type: post)
+├── .obsidian/templates/            # Templater templates
 │   ├── new-note.md                 # Template for notes
 │   └── new-post.md                 # Template for posts
-└── src/
-    ├── content/
-    │   ├── config.ts               # Content collection schema
-    │   └── blog/                   # Processed content (auto-synced)
-    ├── pages/
-    │   ├── index.astro             # Mixed feed homepage
-    │   ├── notes.astro             # Notes-only feed
-    │   ├── posts.astro             # Posts-only feed
-    │   ├── archive.astro           # Date-organized archive
-    │   ├── rss.xml.ts              # RSS feed generator
-    │   ├── blog/[...slug].astro    # Individual post pages
-    │   └── tags/[tag].astro        # Tag-based filtering
-    ├── layouts/
-    │   ├── Layout.astro            # Base layout
-    │   └── BlogPost.astro          # Post layout
-    └── components/
-        └── PostCard.astro          # Post listing component
+└── _web/
+    └── src/
+        ├── content/
+        │   ├── config.ts               # Content collection schema
+        │   └── blog/                   # Processed content (auto-synced)
+        ├── pages/
+        │   ├── index.astro             # Mixed feed homepage
+        │   ├── notes.astro             # Notes-only feed
+        │   ├── posts.astro             # Posts-only feed
+        │   ├── archive.astro           # Date-organized archive
+        │   ├── rss.xml.ts              # RSS feed generator
+        │   ├── blog/[...slug].astro    # Individual post pages
+        │   └── tags/[tag].astro        # Tag-based filtering
+        ├── layouts/
+        │   ├── Layout.astro            # Base layout
+        │   └── BlogPost.astro          # Post layout
+        └── components/
+            └── PostCard.astro          # Post listing component
 ```
 
 ## 📝 Content Model
@@ -80,7 +82,7 @@ pnpm build
 ### 2. Content Creation
 
 **Option A: Manual Creation**
-- Create `.md` files in `public-blog/notes/` or `public-blog/posts/`
+- Create `.md` files in `notes/` or `posts/`
 - Follow the front-matter format above
 - Copy files to `src/content/blog/` for processing
 
@@ -175,14 +177,13 @@ pnpm build
 - Check file permissions in Working Copy
 - Verify Obsidian Sync is working properly
 
-## 🔄 Content Sync
-
-**Important**: This setup requires manual sync between `public-blog/` and `src/content/blog/`. For automatic sync, consider:
-
-1. **Symbolic links**: Link directories (Unix/Linux only)
-2. **Build hook**: Add copy step to build process
-3. **Watch script**: Auto-copy on file changes during development
 
 ## 📄 License
 
-MIT License - feel free to fork and customize for your own blog!
+### Code (`./_web`)
+Released under the MIT License.  
+See the full text in [`LICENSE`](./_web/LICENSE) &ndash; feel free to fork, modify, and reuse for your own site.
+
+### Writing (`./notes` and `./posts`)
+© 2025 George C. All rights reserved.
+Quotations for reviews or discussion are welcome under fair-use limits; please contact me for any other reuse or republication.

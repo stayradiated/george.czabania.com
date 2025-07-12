@@ -14,7 +14,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta charset="UTF-8" />
     <meta name="description" content={description || "Personal blog"} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}/favicon.svg`} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <link rel="canonical" href={canonicalURL} />
     <title>{title}</title>
@@ -80,11 +80,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <div class="container">
       <header>
         <nav>
-          <a href={import.meta.env.BASE_URL} class="nav-logo">Blog</a>
+          <a href="/" class="nav-logo">Blog</a>
           <div class="nav-links">
-            <a href={`${import.meta.env.BASE_URL}/posts`}>Posts</a>
-            <a href={`${import.meta.env.BASE_URL}/notes`}>Notes</a>
-            <a href={`${import.meta.env.BASE_URL}/archive`}>Archive</a>
+            <a href="/posts">Posts</a>
+            <a href="/notes">Notes</a>
+            <a href="/archive">Archive</a>
           </div>
         </nav>
       </header>
@@ -92,7 +92,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         <slot />
       </main>
       <footer>
-        <p>&copy; {new Date().getFullYear()} Personal Blog. <a href={`${import.meta.env.BASE_URL}/rss.xml`}>RSS</a></p>
+        <p>&copy; {new Date().getFullYear()} Personal Blog. <a href="/rss.xml">RSS</a></p>
       </footer>
     </div>
   </body>

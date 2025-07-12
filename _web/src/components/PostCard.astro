@@ -77,7 +77,7 @@ const { title, date, tags, description, type } = post.data;
 <article class="post-card">
   <header class="post-header">
     <h2 class="post-title">
-      <a href={`${import.meta.env.BASE_URL}/blog/${post.id}`}>
+      <a href={`/blog/${post.id}`}>
         {title}
       </a>
     </h2>
@@ -96,7 +96,7 @@ const { title, date, tags, description, type } = post.data;
       <div class="post-tags">
         {tags.map(tag => (
           <a 
-            href={`${import.meta.env.BASE_URL}/tags/${tag}`} 
+            href={`/tags/${tag}`} 
             class="post-tag"
           >
             #{tag}

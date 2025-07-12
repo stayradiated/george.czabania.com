@@ -8,6 +8,9 @@ interface Props {
 
 const { post } = Astro.props;
 const { title, date, tags, description } = post.data;
+
+const pageTitle = title || 'Note';
+const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
 ---
 
 <style>
@@ -106,7 +109,7 @@ const { title, date, tags, description } = post.data;
   }
 </style>
 
-<Layout title={title || 'Note'} description={description}>
+<Layout title={pageTitle} description={pageDescription}>
   <div class="note-container">
     <article class="note-post">
       {tags.length > 0 && (

@@ -7,6 +7,21 @@ interface Props {
 
 const { post } = Astro.props;
 const { title, date, tags, description } = post.data;
+
+function createExcerpt(body: string, maxLength: number = 200): string {
+  const cleanText = body
+    .replace(/#{1,6}\s+/g, '')
+    .replace(/\*\*(.*?)\*\*/g, '$1')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .trim();
+    
+  return cleanText.length > maxLength 
+    ? cleanText.substring(0, maxLength) + '...'
+    : cleanText;
+}
+
+const noteContent = !title && !description ? createExcerpt(post.body) : null;
 ---
 
 <style>
@@ -98,6 +113,10 @@ const { title, date, tags, description } = post.data;
   
   {description && (
     <div class="note-content">{description}</div>
+  )}
+  
+  {noteContent && (
+    <div class="note-content">{noteContent}</div>
   )}
   
   <div class="note-footer">

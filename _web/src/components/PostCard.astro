@@ -9,14 +9,79 @@ const { post } = Astro.props;
 const { title, date, tags, description, type } = post.data;
 ---
 
-<article class="mb-8 pb-8 border-b border-gray-200 last:border-b-0">
-  <header class="mb-4">
-    <h2 class="text-xl font-bold mb-2">
-      <a href={`${import.meta.env.BASE_URL}/blog/${post.id}`} class="hover:underline">
+<style>
+  .post-card {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .post-card:last-child {
+    border-bottom: none;
+  }
+  .post-header {
+    margin-bottom: 1rem;
+  }
+  .post-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  .post-title a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .post-title a:hover {
+    text-decoration: underline;
+  }
+  .post-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+  }
+  .post-meta span {
+    margin: 0 0.5rem;
+  }
+  .post-meta .type {
+    text-transform: capitalize;
+  }
+  .post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+  .post-tag {
+    padding: 0.25rem 0.5rem;
+    background-color: #f3f4f6;
+    color: #374151;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+  }
+  .post-tag:hover {
+    background-color: #e5e7eb;
+  }
+  .post-description {
+    color: #374151;
+    margin-bottom: 1rem;
+  }
+  .post-link {
+    color: #2563eb;
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+  .post-link:hover {
+    text-decoration: underline;
+  }
+</style>
+
+<article class="post-card">
+  <header class="post-header">
+    <h2 class="post-title">
+      <a href={`${import.meta.env.BASE_URL}/blog/${post.id}`}>
         {title}
       </a>
     </h2>
-    <div class="text-sm text-gray-600 mb-2">
+    <div class="post-meta">
       <time datetime={date.toISOString()}>
         {date.toLocaleDateString('en-US', { 
           year: 'numeric', 
@@ -24,15 +89,15 @@ const { title, date, tags, description, type } = post.data;
           day: 'numeric' 
         })}
       </time>
-      <span class="mx-2">•</span>
-      <span class="capitalize">{type}</span>
+      <span>•</span>
+      <span class="type">{type}</span>
     </div>
     {tags.length > 0 && (
-      <div class="flex flex-wrap gap-1">
+      <div class="post-tags">
         {tags.map(tag => (
           <a 
             href={`${import.meta.env.BASE_URL}/tags/${tag}`} 
-            class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
+            class="post-tag"
           >
             #{tag}
           </a>
@@ -41,9 +106,9 @@ const { title, date, tags, description, type } = post.data;
     )}
   </header>
   {description && (
-    <p class="text-gray-700 mb-4">{description}</p>
+    <p class="post-description">{description}</p>
   )}
-  <a href={`/blog/${post.id}`} class="text-blue-600 hover:underline text-sm">
+  <a href={`/blog/${post.id}`} class="post-link">
     Read more →
   </a>
 </article>

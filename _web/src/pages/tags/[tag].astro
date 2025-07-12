@@ -16,14 +16,31 @@ const { tag } = Astro.props;
 const posts = await getPostsByTag(tag);
 ---
 
+<style>
+  .tag-header {
+    margin-bottom: 2rem;
+  }
+  .tag-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  .tag-count {
+    color: #6b7280;
+  }
+  .no-posts {
+    color: #6b7280;
+  }
+</style>
+
 <Layout title={`Posts tagged "${tag}"`} description={`All posts tagged with ${tag}`}>
-  <div class="mb-8">
-    <h1 class="text-2xl font-bold mb-2">Posts tagged "{tag}"</h1>
-    <p class="text-gray-600">{posts.length} post{posts.length === 1 ? '' : 's'}</p>
+  <div class="tag-header">
+    <h1 class="tag-title">Posts tagged "{tag}"</h1>
+    <p class="tag-count">{posts.length} post{posts.length === 1 ? '' : 's'}</p>
   </div>
   
   {posts.length === 0 ? (
-    <p class="text-gray-600">No posts found with this tag.</p>
+    <p class="no-posts">No posts found with this tag.</p>
   ) : (
     <div>
       {posts.map(post => (

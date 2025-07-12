@@ -10,11 +10,92 @@ const { post } = Astro.props;
 const { title, date, tags, description, type } = post.data;
 ---
 
+<style>
+  .blog-post-header {
+    margin-bottom: 2rem;
+  }
+  .blog-post-title {
+    font-size: 1.875rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  .blog-post-meta {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 1rem;
+  }
+  .blog-post-meta span {
+    margin: 0 0.5rem;
+  }
+  .blog-post-meta .type {
+    text-transform: capitalize;
+  }
+  .blog-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .blog-post-tag {
+    padding: 0.25rem 0.5rem;
+    background-color: #f3f4f6;
+    color: #374151;
+    font-size: 0.75rem;
+    border-radius: 0.25rem;
+    text-decoration: none;
+  }
+  .blog-post-tag:hover {
+    background-color: #e5e7eb;
+  }
+  .blog-post-content {
+    line-height: 1.75;
+  }
+  .blog-post-content h1, .blog-post-content h2, .blog-post-content h3 {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+  }
+  .blog-post-content h1 {
+    font-size: 1.5rem;
+  }
+  .blog-post-content h2 {
+    font-size: 1.25rem;
+  }
+  .blog-post-content h3 {
+    font-size: 1.125rem;
+  }
+  .blog-post-content p {
+    margin-bottom: 1rem;
+  }
+  .blog-post-content ul, .blog-post-content ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+  }
+  .blog-post-content code {
+    background-color: #f3f4f6;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+  }
+  .blog-post-content pre {
+    background-color: #f3f4f6;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+  }
+  .blog-post-content blockquote {
+    border-left: 4px solid #e5e7eb;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    font-style: italic;
+  }
+</style>
+
 <Layout title={title} description={description}>
   <article>
-    <header class="mb-8">
-      <h1 class="text-3xl font-bold mb-2">{title}</h1>
-      <div class="text-sm text-gray-600 mb-4">
+    <header class="blog-post-header">
+      <h1 class="blog-post-title">{title}</h1>
+      <div class="blog-post-meta">
         <time datetime={date.toISOString()}>
           {date.toLocaleDateString('en-US', { 
             year: 'numeric', 
@@ -22,15 +103,15 @@ const { title, date, tags, description, type } = post.data;
             day: 'numeric' 
           })}
         </time>
-        <span class="mx-2">•</span>
-        <span class="capitalize">{type}</span>
+        <span>•</span>
+        <span class="type">{type}</span>
       </div>
       {tags.length > 0 && (
-        <div class="flex flex-wrap gap-2">
+        <div class="blog-post-tags">
           {tags.map(tag => (
             <a 
               href={`/tags/${tag}`} 
-              class="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200"
+              class="blog-post-tag"
             >
               #{tag}
             </a>
@@ -38,7 +119,7 @@ const { title, date, tags, description, type } = post.data;
         </div>
       )}
     </header>
-    <div class="prose prose-gray max-w-none">
+    <div class="blog-post-content">
       <slot />
     </div>
   </article>

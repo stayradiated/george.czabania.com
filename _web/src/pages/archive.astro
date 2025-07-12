@@ -76,7 +76,7 @@ const sortedMonths = Array.from(postsByMonth.keys()).sort((a, b) => b.localeComp
             <ul class="archive-posts">
               {monthPosts.map(post => (
                 <li class="archive-post">
-                  <a href={`/blog/${post.slug}`}>
+                  <a href={`/blog/${post.id}`}>
                     {post.data.title}
                   </a>
                   <span class="archive-post-date">

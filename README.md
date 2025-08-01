@@ -16,9 +16,29 @@ Pages via Astro.
 
 ## 🏗️ Architecture
 
+### Content Flow
 ```
 iPhone Obsidian → Working Copy → GitHub → GitHub Actions → GitHub Pages
 ```
+
+1. Content is written in Obsidian (markdown files in `notes/` or `posts/` directories)
+2. Files use specific front-matter format with `publish: true/false` flag
+3. Astro's content collections system processes files via glob loader
+4. GitHub Actions deploys to GitHub Pages on push to main branch
+
+### Key Components
+
+**Content System**
+- Content collection defined in `_web/src/content/config.ts`
+- Schema enforces: posts must have titles, notes are optional
+- Front-matter fields: `title`, `date`, `publish`, `type`, `tags`, `description`
+- Date format must be: `YYYY-MM-DD HH:mm`
+
+**Publishing Logic**
+- `_web/src/lib/published.ts` contains all filtering logic
+- Only posts with `publish: true` are displayed
+- Posts are sorted by date (newest first)
+- Two content types: `note` (micro) and `post` (longer articles)
 
 ## 📁 Project Structure
 
@@ -69,15 +89,23 @@ description: "Optional"     # Meta description
 ### 1. Development Setup
 
 ```bash
+# Navigate to the web directory first
+cd _web
+
 # Install dependencies
 pnpm install
 
-# Start dev server
+# Start dev server at localhost:4321
 pnpm dev
 
-# Build for production
+# Build for production (outputs to ./dist/)
 pnpm build
+
+# Preview production build locally
+pnpm preview
 ```
+
+**Important**: All web development commands must be run from the `_web/` directory.
 
 ### 2. Content Creation
 
@@ -123,6 +151,13 @@ pnpm build
 2. Set source to "GitHub Actions"
 3. Ensure proper permissions in workflow file
 
+### Deployment
+- GitHub Actions workflow in `.github/workflows/deploy.yml`
+- Triggered on push to main branch
+- Uses Node.js 24 and latest pnpm
+- Working directory is `_web/`
+- Builds with Astro and deploys to GitHub Pages
+
 ### Custom Domain (Optional)
 1. Add `CNAME` file to `public/` directory
 2. Configure DNS records
@@ -138,6 +173,15 @@ pnpm build
 ### Content Schema
 - Edit `src/content/config.ts` to modify front-matter fields
 - Update templates in `.obsidian/templates/` accordingly
+
+### Technical Stack
+- **Astro** - Static site generator with file-based routing
+- **TypeScript** - Type safety for content schemas
+- **Tailwind CSS** - Utility-first CSS (via CDN)
+- **Shiki** - Syntax highlighting for code blocks
+- **GitHub Actions** - Automated deployment
+- **Node.js 24** - Runtime environment
+- **pnpm** - Package manager
 
 ## 📊 Routes
 

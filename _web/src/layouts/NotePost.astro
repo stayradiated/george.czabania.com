@@ -70,10 +70,44 @@ const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
     text-decoration: underline;
   }
   .note-post-content code {
-    background-color: #f3f4f6;
-    padding: 0.125rem 0.25rem;
+    background-color: #f6f8fa;
+    padding: 0.2em 0.4em;
     border-radius: 0.25rem;
-    font-size: 0.875rem;
+    font-size: 0.95rem;
+    font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+  }
+  .note-post-content pre {
+    background-color: #f6f8fa;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    overflow-x: visible;
+    margin: 1.5rem 0;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+  .note-post-content pre code {
+    background-color: transparent;
+    padding: 0;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  /* Shiki syntax highlighting adjustments */
+  .note-post-content .astro-code {
+    background-color: #f6f8fa !important;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin: 1.5rem 0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .note-post-content .astro-code code {
+    background-color: transparent;
+    padding: 0;
+    font-size: 0.95rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }
   .note-post-content blockquote {
     border-left: 3px solid #e5e7eb;
@@ -111,6 +145,15 @@ const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
   }
   .note-post-action:hover {
     color: #2563eb;
+  }
+
+  /* Code highlighting styles */
+  .note-post-content :global(.line.highlighted) {
+    background-color: #fff3cd;
+    display: block;
+    margin: 0 -1.5rem;
+    padding: 0 1.5rem;
+    box-shadow: inset 3px 0 0 #ffc107;
   }
 </style>
 

@@ -57,7 +57,7 @@ try {
     fetchPerson(1),
     fetchPerson(2),
     fetchPerson(3),
-    fail() 
+    fail()
   ])
 } catch (error) {
   console.error(error) // Fail!
@@ -106,7 +106,7 @@ try {
     fetchPerson(1),
     fetchPerson(2),
     fetchPerson(3),
-    fail(),
+    fail(), // [!code highlight]
   ])
 } catch (error) {
   console.log(error)
@@ -114,7 +114,7 @@ try {
 
 setImmediate(() =>
   console.log(fetchInProgress))
-  
+
 // Set (3) {
 //   'https://swapi.info/api/people/1',
 //   'https://swapi.info/api/people/2',
@@ -148,7 +148,7 @@ Now, when we fetch people, we can pass in an AbortSignal.
 When we hit an error, we can send an `abort()` message, which will ensure all our fetch requests are cancelled and we have no more background threads. 
 
 ```typescript
-const abortController = new AbortController()
+const abortController = new AbortController() // [!code highlight]
 try {
   await Promise.all([
     fetchPerson(1, abortController.signal),
@@ -157,8 +157,8 @@ try {
     fail(),
   ])
 } catch (error) {
-  // alert all promises that they should stop now
-  abortController.abort()
+  // alert all promises that they should stop now // [!code highlight]
+  abortController.abort() // ![!code highlight]
   console.log(error)
 }
 

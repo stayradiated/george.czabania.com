@@ -14,6 +14,9 @@ importers:
       '@astrojs/sitemap':
         specifier: 3.4.2
         version: 3.4.2
+      '@shikijs/transformers':
+        specifier: 3.9.1
+        version: 3.9.1
       astro:
         specifier: 5.12.7
         version: 5.12.7(@types/node@24.1.0)(rollup@4.46.2)(typescript@5.8.3)
@@ -459,6 +462,9 @@ packages:
 
   '@shikijs/themes@3.9.1':
     resolution: {integrity: sha512-zAykkGECNICCMXpKeVvq04yqwaSuAIvrf8MjsU5bzskfg4XreU+O0B5wdNCYRixoB9snd3YlZ373WV5E/g5T9A==}
+
+  '@shikijs/transformers@3.9.1':
+    resolution: {integrity: sha512-QI4Bh565EhKGaefiDAyn5o7S8rQIUGXcOjZANSiQHa/KSGCyJTZP9UUiRbvdovVpaI/nagODX6mspFk/vcYOQQ==}
 
   '@shikijs/types@3.9.1':
     resolution: {integrity: sha512-rqM3T7a0iM1oPKz9iaH/cVgNX9Vz1HERcUcXJ94/fulgVdwqfnhXzGxO4bLrAnh/o5CPLy3IcYedogfV+Ns0Qg==}
@@ -1830,6 +1836,11 @@ snapshots:
 
   '@shikijs/themes@3.9.1':
     dependencies:
+      '@shikijs/types': 3.9.1
+
+  '@shikijs/transformers@3.9.1':
+    dependencies:
+      '@shikijs/core': 3.9.1
       '@shikijs/types': 3.9.1
 
   '@shikijs/types@3.9.1':

@@ -158,7 +158,7 @@ try {
   ])
 } catch (error) {
   // alert all promises that they should stop now // [!code highlight]
-  abortController.abort() // ![!code highlight]
+  abortController.abort() // [!code highlight]
   console.log(error)
 }
 

@@ -4,8 +4,8 @@ title: "Intro to Generator Functions"
 date: "2025-08-06 10:16"
 publish: true
 type: post
-tags: []
-description: ""
+tags: ["generator functions", "structured concurrency", "effection"]
+description: "An approachable introduction to generator functions, a powerful way to simplify complex tasks in JavaScript by letting you pause and resume your programs whenever you need."
 ---
 
 Good old JavaScript functions. Familiar and comfortable. We define the function and when we are ready, we can call it and it runs.

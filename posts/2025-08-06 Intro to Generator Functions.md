@@ -373,9 +373,7 @@ With our `run` function, we're in charge of how the code executes. This lets us 
 - **Custom behaviour**: We could add logging, retries, or timeouts to every yielded operation
 - **Beyond Promises**: Generators can yield anything - not just Promises. This lets us build abstractions for different kinds of "effects"
 
-This last point is particularly powerful. Our simple `run` function only handles Promises and other generators, but we could extend it to handle all sorts of operations in a structured way. This is exactly what some modern libraries are doing.
-
-What we've built here - a `run` function that manages generator execution - is the beginning of something much larger. Libraries like [Effect.ts](https://effect.website/) and [Effection](https://frontside.com/effection) use this pattern as the foundation for [structured concurrency](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/) in JavaScript.
+Libraries like [Effect.ts](https://effect.website/) and [Effection](https://frontside.com/effection) use this pattern as the foundation for [structured concurrency](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/) in JavaScript.
 
 While you might not reach for generators in your everyday code, understanding how they work opens up new ways of thinking about async operations. 
 

@@ -1,5 +1,5 @@
 ---
-title: "Trouble with Promises"
+title: "Your Promises Are Still Running (Even After You've Moved On)"
 date: "2025-07-30 20:10"
 publish: true
 type: post
@@ -124,17 +124,32 @@ setImmediate(() =>
 
 So that's an issue! We've got these other branches of the code running in the background, and we no longer have a way to reason about them!
 
+
 ```
-fetchPerson(1) | =============================>
-fetchPerson(2) | =====================================>
-fetchPerson(3) | ========================================>
-fail()         | ===!
-                    ^ program flow continues here
-                      while fetchPerson threads run in the background
+fetchPerson(1) | =======[continues running]=======>
+fetchPerson(2) | ============[continues running]=========>
+fetchPerson(3) | ================[continues running]==========>
+fail()         | ===✗
+                    ↑ 
+                    Promise.all rejects here
+                    but other promises keep going
 ```
 
 We need a way to tell those `fetchPerson` functions to stop what they are doing.
-This is where an [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal) would be useful. Let's write a new version of our `fetchPerson` function that lets us pass a signal to the `fetch` call.
+
+## Why does this matter?
+
+These orphaned promises aren't just a theoretical concern. In real applications, they can:
+- **Waste resources**: Each pending request holds memory and potentially a connection slot
+- **Cause race conditions**: Background requests might complete later and update state unexpectedly  
+- **Make debugging harder**: Errors from abandoned promises appear in logs long after the code moved on
+- **Lead to memory leaks**: If these promises hold references to large objects or callbacks
+
+## Breaking Promises
+
+So we need a way to tell those `fetchPerson` functions to stop what they are doing. JavaScript has a built-in solution for this: [AbortSignal](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
+
+Let's write a new version of our `fetchPerson` function that lets us pass a signal to the `fetch` call.
 
 ```typescript
 async function fetchPerson (id: number, signal?: AbortSignal): Promise<Person> {
@@ -159,17 +174,23 @@ try {
 } catch (error) {
   // alert all promises that they should stop now // [!code highlight]
   abortController.abort() // [!code highlight]
-  console.log(error)
+  console.log(error) // Error: Fail!
 }
 
 setImmediate(() =>
   console.log(fetchInProgress)) // Set (0) {}
 ```
 
+## Structured Concurrency
+
+This manual cleanup with AbortSignals works, but it's error-prone. What if we forget to abort? What if we have nested Promise.all calls?
+
+This is where structured concurrency shines. Libraries like Effection ensure that when a parent task fails, all its children are automatically cancelled. No manual cleanup needed.
+
+I'm still learning how to use Effection. This series of blog posts is also a learning experience for myself - as I understand how to use these tools to write better async code.
+
 ## Key Takeaways
 
 1. Keeping track of which promises are running in the background isn't obvious by just reading the code. You need runtime logging to understand which parts of your program are currently executing.
 2. It is very easy to accidentally leave promises to run in the background. This can lead to all sorts of issues (extra resource usage, deadlocks, general confusion).
 3. It's possible to fix this by manually passing around AbortSignals and making sure to catch errors and send `abort()` signals - but it makes the code more complicated and isn't always as easy as with `fetch`.
-
-Next week, I hope to write about the ideas behind Structured Concurrency and how Effection can be used to avoid these complexities.

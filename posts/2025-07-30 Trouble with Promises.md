@@ -3,7 +3,7 @@ title: "Your Promises Are Still Running (Even After You've Moved On)"
 date: "2025-07-30 20:10"
 publish: true
 type: post
-tags: ["structured concurrency", "typescript"]
+tags: ["javascript", "typescript", "async", "structured concurrency"]
 description: "Exploring the hidden pitfalls of JavaScript Promises: why uncancelled promises can quietly keep running, how it can lead to subtle bugs, and what we can do about it."
 ---
 

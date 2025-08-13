@@ -1,12 +1,14 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { getAllPublishedPosts, groupPostsByYearMonth } from '../lib/published';
+import Layout from "../layouts/Layout.astro";
+import { getAllPublishedPosts, groupPostsByYearMonth } from "../lib/published";
 
 const posts = await getAllPublishedPosts();
 const postsByMonth = groupPostsByYearMonth(posts);
 
 // Sort months in descending order
-const sortedMonths = Array.from(postsByMonth.keys()).sort((a, b) => b.localeCompare(a));
+const sortedMonths = Array.from(postsByMonth.keys()).sort((a, b) =>
+  b.localeCompare(a),
+);
 ---
 
 <style>

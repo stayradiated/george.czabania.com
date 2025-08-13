@@ -1,9 +1,9 @@
 ---
-import type { CollectionEntry } from 'astro:content';
-import NoteCard from './NoteCard.astro';
+import type { CollectionEntry } from "astro:content";
+import NoteCard from "./NoteCard.astro";
 
 interface Props {
-  post: CollectionEntry<'blog'>;
+  post: CollectionEntry<"blog">;
 }
 
 const { post } = Astro.props;

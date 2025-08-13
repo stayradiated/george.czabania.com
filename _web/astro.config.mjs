@@ -1,22 +1,26 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
-import sitemap from '@astrojs/sitemap';
-import { 
-  transformerNotationHighlight,
+
+import mdx from "@astrojs/mdx";
+import sitemap from "@astrojs/sitemap";
+import {
+  transformerMetaHighlight,
   transformerNotationDiff,
   transformerNotationFocus,
-  transformerMetaHighlight 
-} from '@shikijs/transformers';
+  transformerNotationHighlight,
+} from "@shikijs/transformers";
+import { defineConfig } from "astro/config";
+
+import svelte from "@astrojs/svelte";
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://george.czabania.com',
-  integrations: [sitemap()],
-  output: 'static',
+  site: "https://george.czabania.com",
+  integrations: [sitemap(), mdx(), svelte()],
+  output: "static",
   markdown: {
-    syntaxHighlight: 'shiki',
+    syntaxHighlight: "shiki",
     shikiConfig: {
-      theme: 'github-light',
+      theme: "github-light",
       wrap: true,
       transformers: [
         transformerNotationHighlight(),

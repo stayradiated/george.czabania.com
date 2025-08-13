@@ -1,15 +1,15 @@
 ---
-import Layout from './Layout.astro';
-import type { CollectionEntry } from 'astro:content';
+import type { CollectionEntry } from "astro:content";
+import Layout from "./Layout.astro";
 
 interface Props {
-  post: CollectionEntry<'blog'>;
+  post: CollectionEntry<"blog">;
 }
 
 const { post } = Astro.props;
 const { title, date, tags, description } = post.data;
 
-const pageTitle = title || 'Note';
+const pageTitle = title || "Note";
 const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
 ---
 

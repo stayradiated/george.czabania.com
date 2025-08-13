@@ -1,18 +1,28 @@
 {
-  "name": "solar-spiral",
+  "name": "george.czabania.com",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "tidy": "biome check --write --unsafe .."
   },
   "dependencies": {
+    "@astrojs/mdx": "4.3.3",
     "@astrojs/rss": "4.0.12",
     "@astrojs/sitemap": "3.4.2",
-    "@shikijs/transformers": "3.9.1",
-    "astro": "5.12.7",
-    "zod": "4.0.14"
+    "@astrojs/svelte": "^7.1.0",
+    "@shikijs/transformers": "3.9.2",
+    "astro": "5.12.9",
+    "es-toolkit": "1.39.9",
+    "groq-sdk": "0.30.0",
+    "svelte": "^5.38.1",
+    "typescript": "^5.9.2",
+    "zod": "4.0.17"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.1.4"
   }
 }

@@ -1,7 +1,7 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import PostCard from '../components/PostCard.astro';
-import { getPublishedNotes } from '../lib/published';
+import PostCard from "../components/PostCard.astro";
+import Layout from "../layouts/Layout.astro";
+import { getPublishedNotes } from "../lib/published";
 
 const notes = await getPublishedNotes();
 ---

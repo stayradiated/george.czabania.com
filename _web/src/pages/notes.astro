@@ -1,5 +1,5 @@
 ---
-import PostCard from "../components/PostCard.astro";
+import NoteCard from "../components/NoteCard.astro";
 import Layout from "../layouts/Layout.astro";
 import { getPublishedNotes } from "../lib/published";
 
@@ -25,7 +25,7 @@ const notes = await getPublishedNotes();
   ) : (
     <div>
       {notes.map(note => (
-        <PostCard post={note} />
+        <NoteCard {note} />
       ))}
     </div>
   )}

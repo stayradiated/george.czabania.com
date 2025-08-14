@@ -2,11 +2,11 @@
 import type { CollectionEntry } from "astro:content";
 
 interface Props {
-  post: CollectionEntry<"blog">;
+  note: CollectionEntry<"notes">;
 }
 
-const { post } = Astro.props;
-const { title, date, tags, description } = post.data;
+const { note } = Astro.props;
+const { title, date, tags, description } = note.data;
 
 function createExcerpt(body: string, maxLength: number = 200): string {
   const cleanText = body
@@ -21,7 +21,7 @@ function createExcerpt(body: string, maxLength: number = 200): string {
     : cleanText;
 }
 
-const noteContent = !title && !description ? createExcerpt(post.body) : null;
+const noteContent = !title && !description ? createExcerpt(note.body) : null;
 ---
 
 <style>
@@ -128,7 +128,7 @@ const noteContent = !title && !description ? createExcerpt(post.body) : null;
         </div>
       )}
     </div>
-    <a href={`/blog/${post.id}`} class="note-permalink">
+    <a href={`/note/${note.id}`} class="note-permalink">
       Permalink
     </a>
   </div>

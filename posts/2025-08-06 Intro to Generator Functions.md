@@ -1,8 +1,8 @@
 ---
+slug: "generator-functions"
 title: "Intro to Generator Functions"
 date: "2025-08-06 10:16"
 publish: true
-type: post
 tags: ["javascript", "typescript", "generators", "async"]
 description: "Learn how generator functions work by building your own async/await from scratch."
 ---

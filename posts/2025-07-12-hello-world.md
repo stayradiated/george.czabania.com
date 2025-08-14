@@ -1,8 +1,8 @@
 ---
+slug: "hello-world"
 title: "Hello World"
 date: "2025-07-12 09:30"
 publish: true
-type: post
 tags: [blog, astro, obsidian]
 description: "First post on the new Obsidian-to-Astro blog system"
 ---

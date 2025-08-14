@@ -1,22 +1,31 @@
 import { type CollectionEntry, getCollection } from "astro:content";
 
-export type BlogPost = CollectionEntry<"blog">;
+export type Post = CollectionEntry<"posts">;
+export type Note = CollectionEntry<"notes">;
+export type BlogPost = Post | Note;
 
 export async function getAllPublishedPosts(): Promise<BlogPost[]> {
-  const posts = await getCollection("blog");
-  return posts
+  const notes = await getCollection("notes");
+  const posts = await getCollection("posts");
+
+  return [...notes, ...posts]
     .filter((post) => post.data.publish)
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
-export async function getPublishedNotes(): Promise<BlogPost[]> {
-  const posts = await getAllPublishedPosts();
-  return posts.filter((post) => post.data.type === "note");
+export async function getPublishedNotes(): Promise<Note[]> {
+  const notes = await getCollection("notes");
+
+  return notes
+    .filter((post) => post.data.publish)
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
-export async function getPublishedPosts(): Promise<BlogPost[]> {
-  const posts = await getAllPublishedPosts();
-  return posts.filter((post) => post.data.type === "post");
+export async function getPublishedPosts(): Promise<Post[]> {
+  const posts = await getCollection("posts");
+  return posts
+    .filter((post) => post.data.publish)
+    .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
 export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
@@ -26,11 +35,8 @@ export async function getPostsByTag(tag: string): Promise<BlogPost[]> {
 
 export async function getAllTags(): Promise<string[]> {
   const posts = await getAllPublishedPosts();
-  const tags = new Set<string>();
-  posts.forEach((post) => {
-    post.data.tags.forEach((tag) => tags.add(tag));
-  });
-  return Array.from(tags).sort();
+  const tagSet = new Set<string>(posts.flatMap((post) => post.data.tags));
+  return Array.from(tagSet).sort();
 }
 
 export function groupPostsByYearMonth(

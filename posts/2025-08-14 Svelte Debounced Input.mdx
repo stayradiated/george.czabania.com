@@ -38,7 +38,7 @@ When debouncing an `<input />` element, there are a few extra nice-to-have featu
 
 - If the user blurs the input, immediately trigger an update (i.e. they have tabbed out of it).
 - If the user presses enter, immediately trigger an update (i.e. they want to submit their search query).
-- Don't trigger in the middle of IME composition. I didn't know about this until recently, but composing complex characters (common in Japanese and Chinese) can take multiple keypresses, and the input shouldn't trigger an update until the composition is finished.
+- Don't trigger in the middle of a ["Composition Event"](https://www.w3.org/TR/uievents/#events-compositionevents). I learned about these events while researching this article: some characters require multiple letters to type (such as adding accents to characters, or building logograms in many Asian languages). The input shouldn't trigger an update until the user has finished composition.
 
 ## Example
 

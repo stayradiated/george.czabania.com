@@ -95,7 +95,14 @@ const handleClearHistory = () => {
 
     <div class="groceryList" aria-live="polite">
       {#await searchResultsPromise}
-        <span class="searching">Searching for "{query}"<span class="dots" aria-hidden="true"></span></span>
+        <span class="searching">
+          {#if query.length > 0}
+            Searching for "{query}"
+          {:else}
+            Loading
+          {/if}
+          <span class="dots" aria-hidden="true"></span>
+        </span>
       {:then results}
         {#if results.length}
           <ul class="results">
@@ -244,6 +251,7 @@ const handleClearHistory = () => {
   font-weight: 600;
   letter-spacing: 0.2px;
 }
+.control > p { margin: 0; }
 .subtle { color: var(--muted); margin: -0.25rem 0 0.25rem; }
 
 /* Segmented radio group (no markup reordering needed) */
@@ -251,6 +259,10 @@ const handleClearHistory = () => {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: .4rem;
+}
+@media (max-width: 650px) {
+  /* stack the radio buttons on small screens */
+  .segmented { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .segmented input[type="radio"] {
   position: absolute;

@@ -1,0 +1,191 @@
+---
+title: "Notes on Debouncing Inputs in Svelte 5"
+date: "2025-08-14 07:15"
+publish: true
+type: post
+tags: ["svelte", "ux", "typescript", "input"]
+description: "A practical debounced input component with TypeScript and Svelte 5"
+---
+
+import SearchExample from '../_web/src/components/2025-08-14/SearchExample.svelte'
+
+Sometimes adding a little delay to a user interface can improve the experience. A common example of this is debouncing the value from an input element.
+
+## What is Debouncing?
+
+The [MDN Glossary for `Debounce`](https://developer.mozilla.org/en-US/docs/Glossary/Debounce) is a great place to start.
+
+The key idea is that when you have a stream of rapidly firing events (such as keys being pressed while typing) - instead of reacting immediately to every single event - wait until there is a pause in the stream - i.e. the user hasn't typed anything for a little bit - and then react.
+
+It's similar to using a [Throttle](https://developer.mozilla.org/en-US/docs/Glossary/Throttle) - but while a throttle will ensure a steady rate-limited stream, debouncing will wait until there is a pause in the events -- which usually indicates that the user has finished typing.
+
+Think about how humans naturally talk with each other. When someone is mid-sentence, we don't interrupt after each word. Instead, we wait for that brief pause - that moment of silence that tells us they've completed their thought and it's our turn to respond.
+
+## Why Debounce?
+
+A key reason to use debouncing is to reduce UI lag. Processing every single keystroke may make interfaces feel sluggish, especially with CPU-intensive operations such as searching through tens of thousands of items or recalculating a report table.
+
+Debouncing isn't always necessary: if the app can update quickly (i.e. within 16ms), then debouncing is unlikely to make much difference.
+
+Another key reason is to reduce network traffic. Instead of making dozens of API requests with partial form data, we send a single request with the actual user query. This reduces network congestion and server load.
+
+When we wait for the user to pause, we're acting on what they actually meant to type, not the half-formed thoughts along the way.
+
+## Debouncing Inputs
+
+When it comes to debouncing an `<input />` element, there are a few nice-to-have features for the user to make it feel more responsive (even when there is a high delay):
+
+- If the user blurs the input, immediately trigger an update (i.e. they have tabbed out of it).
+- If the user presses enter, immediately trigger an update (i.e. they want to submit their search query).
+- Don't trigger in the middle of IME composition. I didn't know about this until recently, but composing complex characters (common in Japanese and Chinese) can take multiple keypresses, and the input shouldn't trigger an update until the composition is finished.
+
+And some features that make for a good Svelte component:
+
+- Two-way data binding: if you need to programmatically update the input value, you can - for example, clean the value of a search input.
+- Resources are cleaned up when the component is unmounted: the `setTimeout` timer is cleared when we no longer need it, to avoid leaking memory.
+
+## Example
+
+I've put together a little example UI for searching a list of groceries. You can adjust the debounce delay and get a feel for how it works.
+
+Notice that no delay _feels_ fast - but has the trade-off to make dozens of unnecessary API requests.
+
+<SearchExample client:load />
+
+## Source Code
+
+Here is the full source code for `DebouncedInput.svelte` (MIT Licensed).
+
+I am intentionally not publishing it as a library - if you would like to use it, please copy/paste it.
+
+```svelte
+<script lang="ts">
+import { onDestroy, untrack } from "svelte";
+import type { HTMLInputAttributes } from "svelte/elements";
+
+type Props = HTMLInputAttributes & {
+  // Debounce delay in milliseconds
+  delayMs?: number;
+};
+
+let { delayMs = 250, value = $bindable(), ...restProps }: Props = $props();
+
+if (delayMs < 0) {
+  throw new Error("DebouncedInput: delayMs must be >= 0");
+}
+
+let inputValue = $state<Props["value"]>(value);
+let timer = $state<ReturnType<typeof setTimeout> | undefined>(undefined);
+let isComposing = $state(false);
+
+const schedule = () => {
+  if (isComposing) {
+    return;
+  }
+  if (timer) {
+    clearTimeout(timer);
+  }
+  timer = setTimeout(flush, delayMs);
+};
+
+const flush = () => {
+  if (timer) {
+    clearTimeout(timer);
+    timer = undefined;
+  }
+  value = inputValue;
+};
+
+const handleInput = () => {
+  schedule();
+};
+
+const handleKeydown = (event: KeyboardEvent) => {
+  if (event.key === "Enter") {
+    flush();
+  }
+};
+
+const handleBlur = () => {
+  flush();
+};
+
+const handleCompositionStart = () => {
+  isComposing = true;
+};
+
+const handleCompositionEnd = () => {
+  isComposing = false;
+};
+
+// If the parent manually updates the value, we need to update the input value
+$effect(() => {
+  if (value !== untrack(() => inputValue)) {
+    inputValue = value;
+  }
+});
+
+onDestroy(() => {
+  if (timer) {
+    clearTimeout(timer);
+  }
+});
+</script>
+
+<input
+  bind:value={inputValue}
+  oninput={handleInput}
+  onkeydown={handleKeydown}
+  onblur={handleBlur}
+  oncompositionstart={handleCompositionStart}
+  oncompositionend={handleCompositionEnd}
+  {...restProps}
+/>
+
+<!--
+Copyright © 2025 George Czabania
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the “Software”), to deal in
+the Software without restriction, including, without limitation, the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+```
+
+## Usage
+
+1. Use `<DebouncedInput />` just like a regular `<input />` element.
+2. Bind the `value` prop to a `$state()` variable
+3. (optional) Set a custom value for `delayMs` (defaults to 250ms)
+
+Open this example [in the Svelte Playground](https://svelte.dev/playground/a1cb52c4018b4622ae8015e7b17f837e?version=latest).
+
+```svelte
+<script>
+import DebouncedInput from "./DebouncedInput.svelte"
+
+let value = $state('')
+</script>
+
+<DebouncedInput
+  bind:value
+  delayMs={300}
+  type="text"
+  placeholder="value"
+/>
+
+<pre><code>value = "{value}"</code></pre>
+```

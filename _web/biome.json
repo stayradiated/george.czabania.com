@@ -47,5 +47,10 @@
         }
       }
     }
-  ]
+  ],
+  "css": {
+    "parser": {
+      "cssModules": true
+    }
+  }
 }

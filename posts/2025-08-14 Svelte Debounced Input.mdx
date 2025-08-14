@@ -9,15 +9,16 @@ description: "A practical debounced input component with TypeScript and Svelte 5
 
 import SearchExample from '../_web/src/components/2025-08-14/SearchExample.svelte'
 
-Sometimes adding a little delay to a user interface can improve the experience. A common example of this is debouncing the value from an input element.
+When designing a user interface, I usually want the UI to update as fast as
+possible. However, there are some cases where adding a little delay can _improve_ the experience. A great example of this is reacting to updates as the user types into a text input: instead of reacting on every keypress, it can be better to _debounce_ the input.
 
 ## What is Debouncing?
 
 The [MDN Glossary for `Debounce`](https://developer.mozilla.org/en-US/docs/Glossary/Debounce) is a great place to start.
 
-The key idea is that when you have a stream of rapidly firing events (such as keys being pressed while typing) - instead of reacting immediately to every single event - wait until there is a pause in the stream - i.e. the user hasn't typed anything for a little bit - and then react.
+Debouncing is a way to reduce the number of times an event is emitted.
 
-It's similar to using a [Throttle](https://developer.mozilla.org/en-US/docs/Glossary/Throttle) - but while a throttle will ensure a steady rate-limited stream, debouncing will wait until there is a pause in the events -- which usually indicates that the user has finished typing.
+The key idea is that when you have a stream of rapidly firing events (such as keys being pressed while typing), instead of reacting to every single event, we wait until a short pause appears in the stream. This pause indicates the user has finished typing, and _now_ we can react to their input.
 
 Think about how humans naturally talk with each other. When someone is mid-sentence, we don't interrupt after each word. Instead, we wait for that brief pause - that moment of silence that tells us they've completed their thought and it's our turn to respond.
 
@@ -33,24 +34,60 @@ When we wait for the user to pause, we're acting on what they actually meant to 
 
 ## Debouncing Inputs
 
-When it comes to debouncing an `<input />` element, there are a few nice-to-have features for the user to make it feel more responsive (even when there is a high delay):
+When debouncing an `<input />` element, there are a few extra nice-to-have features that can make it feel more responsive:
 
 - If the user blurs the input, immediately trigger an update (i.e. they have tabbed out of it).
 - If the user presses enter, immediately trigger an update (i.e. they want to submit their search query).
 - Don't trigger in the middle of IME composition. I didn't know about this until recently, but composing complex characters (common in Japanese and Chinese) can take multiple keypresses, and the input shouldn't trigger an update until the composition is finished.
 
-And some features that make for a good Svelte component:
-
-- Two-way data binding: if you need to programmatically update the input value, you can - for example, clean the value of a search input.
-- Resources are cleaned up when the component is unmounted: the `setTimeout` timer is cleared when we no longer need it, to avoid leaking memory.
-
 ## Example
 
 I've put together a little example UI for searching a list of groceries. You can adjust the debounce delay and get a feel for how it works.
 
-Notice that no delay _feels_ fast - but has the trade-off to make dozens of unnecessary API requests.
+
+I encourage you to experiment with the different delay durations:
+
+- Having no delay (instant) _feels great - but has the trade-off to make dozens of unnecessary API requests.
+- A fast delay triggers a search quickly, but often leads to extra API requests
+  for half-finished search queries.
+- For me, 300ms feels like a sweet spot - quick enough that the UI feels
+  reactive, but long enough for me to finish typing my search query.
+- Slow adds a noticeable pause between finishing typing and searching - but as
+  a user, I can signal that I'm ready to search by pressing Enter.
 
 <SearchExample client:load />
+
+## `<DebouncedInput />`
+
+This DebouncedInput has some useful features:
+
+- Two-way data binding: if you need to programmatically update the input value, you can - for example, clean the value of a search input.
+- Resources are cleaned up when the component is unmounted: the `setTimeout` timer is cleared when we no longer need it, to avoid leaking memory.
+
+**How to use this:**
+
+1. Use `<DebouncedInput />` just like a regular `<input />` element.
+2. Bind the `value` prop to a `$state()` variable
+3. (optional) Set a custom value for `delayMs` (defaults to 250ms)
+
+Open this example [in the Svelte Playground](https://svelte.dev/playground/a1cb52c4018b4622ae8015e7b17f837e?version=latest).
+
+```svelte
+<script>
+import DebouncedInput from "./DebouncedInput.svelte"
+
+let value = $state('')
+</script>
+
+<DebouncedInput
+  bind:value
+  delayMs={300}
+  type="text"
+  placeholder="value"
+/>
+
+<pre><code>value = "{value}"</code></pre>
+```
 
 ## Source Code
 
@@ -163,29 +200,4 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 -->
-```
-
-## Usage
-
-1. Use `<DebouncedInput />` just like a regular `<input />` element.
-2. Bind the `value` prop to a `$state()` variable
-3. (optional) Set a custom value for `delayMs` (defaults to 250ms)
-
-Open this example [in the Svelte Playground](https://svelte.dev/playground/a1cb52c4018b4622ae8015e7b17f837e?version=latest).
-
-```svelte
-<script>
-import DebouncedInput from "./DebouncedInput.svelte"
-
-let value = $state('')
-</script>
-
-<DebouncedInput
-  bind:value
-  delayMs={300}
-  type="text"
-  placeholder="value"
-/>
-
-<pre><code>value = "{value}"</code></pre>
 ```

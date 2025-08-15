@@ -14,31 +14,37 @@ const getClient = once(() => {
 type StreamTextOptions = {
   system: string;
   user: string;
+  signal?: AbortSignal;
 };
 
 async function* streamText(options: StreamTextOptions): AsyncIterable<string> {
-  const { system, user } = options;
+  const { system, user, signal } = options;
 
   const client = getClient();
 
-  const chatCompletion = await client.chat.completions.create({
-    model: "llama-3.1-8b-instant",
-    temperature: 1,
-    max_completion_tokens: 1024,
-    top_p: 1,
-    stream: true,
-    stop: null,
-    messages: [
-      {
-        role: "system",
-        content: system,
-      },
-      {
-        role: "user",
-        content: user,
-      },
-    ],
-  });
+  const chatCompletion = await client.chat.completions.create(
+    {
+      model: "llama-3.1-8b-instant",
+      temperature: 1,
+      max_completion_tokens: 1024,
+      top_p: 1,
+      stream: true,
+      stop: null,
+      messages: [
+        {
+          role: "system",
+          content: system,
+        },
+        {
+          role: "user",
+          content: user,
+        },
+      ],
+    },
+    {
+      signal,
+    },
+  );
 
   for await (const chunk of chatCompletion) {
     const nextChunk = chunk.choices[0].delta?.content;

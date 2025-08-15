@@ -2,7 +2,7 @@
 import { untrack } from "svelte";
 import { fade } from "svelte/transition";
 
-import DebouncedInput from "./DebouncedInput.svelte";
+import DebouncedInput from "../DebouncedInput.svelte";
 import { search } from "./search-api.js";
 
 let query = $state("");

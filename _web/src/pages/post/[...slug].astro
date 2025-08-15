@@ -4,9 +4,13 @@ import BlogPost from "../../layouts/BlogPost.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("posts");
-  const publishedPosts = posts.filter((post) => post.data.publish);
 
-  return publishedPosts.map((post) => ({
+  /**
+   * note: ALL posts are publically available
+   * even if they have `publish: false` in their frontmatter
+   */
+
+  return posts.map((post) => ({
     params: { slug: post.id },
     props: { post },
   }));

@@ -5,9 +5,15 @@ import type { HTMLInputAttributes } from "svelte/elements";
 type Props = HTMLInputAttributes & {
   // Debounce delay in milliseconds
   delayMs?: number;
+  self?: HTMLInputElement;
 };
 
-let { delayMs = 250, value = $bindable(), ...restProps }: Props = $props();
+let {
+  self = $bindable(),
+  delayMs = 250,
+  value = $bindable(),
+  ...restProps
+}: Props = $props();
 
 if (delayMs < 0) {
   throw new Error("DebouncedInput: delayMs must be >= 0");
@@ -72,6 +78,7 @@ onDestroy(() => {
 </script>
 
 <input
+  bind:this={self}
   bind:value={inputValue}
   oninput={handleInput}
   onkeydown={handleKeydown}

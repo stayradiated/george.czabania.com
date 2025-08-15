@@ -10,12 +10,16 @@
     "tidy": "biome check --write --unsafe .."
   },
   "dependencies": {
-    "@astrojs/mdx": "4.3.3",
+    "@astrojs/mdx": "4.3.4",
     "@astrojs/rss": "4.0.12",
     "@astrojs/sitemap": "3.5.0",
     "@astrojs/svelte": "^7.1.0",
+    "@floating-ui/core": "1.7.3",
+    "@floating-ui/dom": "1.7.3",
     "@shikijs/transformers": "3.9.2",
-    "astro": "5.13.0",
+    "@stayradiated/error-boundary": "4.3.0",
+    "astro": "5.13.2",
+    "emoji-mart": "5.6.0",
     "es-toolkit": "1.39.9",
     "groq-sdk": "0.30.0",
     "match-sorter": "8.1.0",

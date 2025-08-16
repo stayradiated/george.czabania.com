@@ -11,13 +11,13 @@ const getClient = once(() => {
   return client;
 });
 
-type StreamTextOptions = {
+type Options = {
   system: string;
   user: string;
   signal?: AbortSignal;
 };
 
-async function* streamText(options: StreamTextOptions): AsyncIterable<string> {
+async function* streamText(options: Options): AsyncIterable<string> {
   const { system, user, signal } = options;
 
   const client = getClient();
@@ -54,4 +54,35 @@ async function* streamText(options: StreamTextOptions): AsyncIterable<string> {
   }
 }
 
-export { streamText };
+const fetchText = async (options: Options) => {
+  const { system, user, signal } = options;
+
+  const client = getClient();
+
+  const chatCompletion = await client.chat.completions.create(
+    {
+      model: "llama-3.1-8b-instant",
+      temperature: 1,
+      max_completion_tokens: 1024,
+      top_p: 1,
+      stop: null,
+      messages: [
+        {
+          role: "system",
+          content: system,
+        },
+        {
+          role: "user",
+          content: user,
+        },
+      ],
+    },
+    {
+      signal,
+    },
+  );
+
+  return chatCompletion.choices[0].message?.content || "";
+};
+
+export { streamText, fetchText };

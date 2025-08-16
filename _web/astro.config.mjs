@@ -16,6 +16,7 @@ export default defineConfig({
   site: "https://george.czabania.com",
   integrations: [sitemap(), mdx(), svelte()],
   output: "static",
+
   markdown: {
     syntaxHighlight: "shiki",
     shikiConfig: {

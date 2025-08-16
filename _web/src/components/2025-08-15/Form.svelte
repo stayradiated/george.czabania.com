@@ -1,11 +1,13 @@
 <script lang="ts">
 import { untrack } from "svelte";
 import { fade } from "svelte/transition";
+import Button from "#src/components/ui/Button.svelte";
 import DebouncedInput from "../DebouncedInput.svelte";
+import DropdownMenu from "../DropdownMenu.svelte";
 import Emoji from "../Emoji.svelte";
 import EmojiPicker from "../EmojiPicker.svelte";
 import Sparkles from "../icons/Sparkles.svelte";
-import { suggestDescription } from "./suggest-description.js";
+import { getDescription } from "./get-description.js";
 
 type Label = {
   name: string;
@@ -26,76 +28,54 @@ const DEFAULT_DESCRIPTION = "";
 
 let name = $state("");
 let icon = $state(DEFAULT_ICON);
-let suggestedIcon = $state(DEFAULT_ICON);
+let autofilledIcon = $state(DEFAULT_ICON);
 let description = $state(DEFAULT_DESCRIPTION);
-let suggestedDescription = $state(DEFAULT_DESCRIPTION);
-let isLoadingDescription = $state(false);
-let isLoadingIcon = $state(false);
+let autofilledDescription = $state(DEFAULT_DESCRIPTION);
+let isLoading = $state(false);
 
 let nameInputRef = $state<HTMLInputElement>();
 let showEmojiPicker = $state(false);
 
-const shouldSuggestDescription = $derived(
-  description === DEFAULT_DESCRIPTION || description === suggestedDescription,
+const shouldAutofillDescription = $derived(
+  description === DEFAULT_DESCRIPTION || description === autofilledDescription,
 );
-const shouldSuggestIcon = $derived(
-  icon === DEFAULT_ICON || icon === suggestedIcon,
+const shouldAutofillIcon = $derived(
+  icon === DEFAULT_ICON || icon === autofilledIcon,
 );
 
-const isSuggestedDescription = $derived(
-  description === suggestedDescription && description !== DEFAULT_DESCRIPTION,
+const isAutofilledDescription = $derived(
+  description === autofilledDescription && description !== DEFAULT_DESCRIPTION,
 );
 
 const canSubmit = $derived(name.trim().length > 0);
 
 $effect(() => {
-  if (untrack(() => !shouldSuggestDescription && !shouldSuggestIcon)) {
-    return;
-  }
-  if (name.trim().length === 0) {
-    return;
-  }
+  // only regenerate the description if the name has changed
+  void name;
 
-  untrack(() => {
-    if (shouldSuggestDescription) {
-      isLoadingDescription = true;
-    }
-    if (shouldSuggestIcon) {
-      isLoadingIcon = true;
-    }
+  // we wrap the body of the effect in an untracked function to prevent
+  // tracking other values (which could cause infinite loops)
+  return untrack(() => {
+    const abortController = new AbortController();
+    isLoading = true;
+    getDescription({
+      labelName: name,
+      defaultDescription: DEFAULT_DESCRIPTION,
+      defaultIcon: DEFAULT_ICON,
+      signal: abortController.signal,
+    }).then((result) => {
+      if (shouldAutofillDescription && typeof result.description === "string") {
+        description = result.description;
+      }
+      if (shouldAutofillIcon && typeof result.icon === "string") {
+        icon = result.icon;
+      }
+      autofilledDescription = result.description;
+      autofilledIcon = result.icon;
+      isLoading = false;
+    });
+    return () => abortController.abort();
   });
-
-  const abortController = new AbortController();
-  suggestDescription({
-    labelName: name,
-    signal: abortController.signal,
-  }).then((value) => {
-    let nextDescription = "";
-    let nextIcon = DEFAULT_ICON;
-
-    if (value instanceof Error) {
-      console.error(value);
-    } else {
-      nextDescription = value?.description || "";
-      nextIcon = value?.emoji || DEFAULT_ICON;
-    }
-
-    if (shouldSuggestDescription) {
-      description = nextDescription;
-      suggestedDescription = description;
-    }
-    if (shouldSuggestIcon) {
-      icon = nextIcon;
-      suggestedIcon = icon;
-    }
-
-    isLoadingDescription = false;
-    isLoadingIcon = false;
-  });
-
-  return () => {
-    abortController.abort();
-  };
 });
 
 const handleSubmit = (event: SubmitEvent) => {
@@ -115,98 +95,108 @@ const handleSubmit = (event: SubmitEvent) => {
 };
 </script>
 
-<div class="wrap">
-  <form onsubmit={handleSubmit} class="card">
-    <header>
-      <h2>Create label</h2>
-    </header>
+<form onsubmit={handleSubmit} class="card">
+  <header>
+    <h2>Create Label (Demo)</h2>
+  </header>
 
-    <div class="field">
-      <label for="{uid}-name">Name</label>
-      <div class="nameAndIcon">
-        <EmojiPicker bind:isOpen={showEmojiPicker} bind:value={icon}>
-          <button
-            id="{uid}-icon" 
-            type="button"
-            class="iconButton"
-            onclick={() => showEmojiPicker = true}
-            title="Change Icon"
-            aria-label="{icon}"
-          >
-            {#if isLoadingIcon}
-              <span class="spinner" aria-hidden="true"></span>
-            {:else}
-              <Emoji native={icon} size="1.5em" />
-            {/if}
-          </button>
-        </EmojiPicker>
-        <DebouncedInput
-          bind:self={nameInputRef}
-          delayMs={500}
-          id="{uid}-name"
-          type="text"
-          placeholder="e.g., Urgent, Design, Finance"
-          bind:value={name}
-        />
-      </div>
+  <div class="field">
+    <label for="{uid}-name">Name</label>
+    <div class="nameAndIcon">
+      <EmojiPicker bind:isOpen={showEmojiPicker} bind:value={icon}>
+        <button
+          id="{uid}-icon" 
+          type="button"
+          class="iconButton"
+          onclick={() => showEmojiPicker = true}
+          title="Change Icon"
+          aria-label="{icon}"
+        >
+          {#if isLoading && shouldAutofillIcon}
+            <span class="spinner" aria-hidden="true"></span>
+          {:else}
+            <Emoji native={icon} size="1rem" />
+          {/if}
+        </button>
+      </EmojiPicker>
+      <DebouncedInput
+        bind:self={nameInputRef}
+        delayMs={500}
+        id="{uid}-name"
+        type="text"
+        placeholder="e.g., Urgent, Design, Finance"
+        bind:value={name}
+      />
+    </div>
+  </div>
+
+  <div class="field" class:loading={isLoading && shouldAutofillDescription}>
+    <div class="labelRow">
+      <label for="labelDescription">Description</label>
     </div>
 
-    <div class="field" class:loading={isLoadingDescription}>
-      <div class="labelRow">
-        <label for="labelDescription">Description</label>
-      </div>
+    <div class="textareaContainer" class:isAutofilled={isAutofilledDescription}>
+      <textarea
+        id="labelDescription"
+        rows={2}
+        placeholder="A short description of when to apply this label…"
+        bind:value={description}
+        aria-describedby="descHelp"
+        required
+      ></textarea>
+      {#if isLoading && shouldAutofillDescription}
+        <div class="overlay" transition:fade>
+          <div class="spinner" aria-hidden="true"></div>
+        </div>
+      {:else}
+        <div class="overlay" transition:fade>
+          <DropdownMenu placement="bottom-end" offset={4}>
+            {#snippet button({ isOpen, toggleMenu })}
+              <button class="aiButton" class:isOpen type="button" onclick={toggleMenu}>
+                <Sparkles size="1.5em" />
+              </button>
+            {/snippet}
 
-      <div class="textareaWrap">
-        <textarea
-          id="labelDescription"
-          rows={2}
-          placeholder="A short description of when to apply this label…"
-          bind:value={description}
-          aria-describedby="descHelp"
-        ></textarea>
-        {#if isLoadingDescription}
-          <div class="overlay" transition:fade>
-            <div class="spinner" aria-hidden="true"></div>
-          </div>
-        {:else if isSuggestedDescription}
-          <div class="overlay" transition:fade>
-            <div class="sparkles" title="AI Suggestion"><Sparkles /></div>
-          </div>
-        {/if}
-      </div>
+            {#snippet children()}
+              {#if isAutofilledDescription}
+                <div class="aiMenu">
+                  <strong><Sparkles size="1em" /> Autofilled Description</strong>
+                  <span class="description">This description was autofilled by the AI. Review and edit as needed.</span>
+                </div>
+              {:else}
+                <div class="aiMenu">
+                  <strong><Sparkles size="1em" /> Autofilled Description</strong>
+                  <span>{autofilledDescription}</span>
+
+                  <Button type="button" onclick={() => description = autofilledDescription}>Replace</Button>
+                </div>
+              {/if}
+            {/snippet}
+          </DropdownMenu>
+        </div>
+      {/if}
     </div>
+  </div>
 
-    <footer class="footer">
-      <button type="submit" class="primary" disabled={!canSubmit}>Create label</button>
-    </footer>
-  </form>
-</div>
+  <footer class="footer">
+    <Button type="submit" variant="primary" disabled={!canSubmit}>Create label</Button>
+  </footer>
+</form>
 
 <style>
-  .wrap {
-    --border: #e5e7eb;
-    --fg: #111827;
-    --muted: #6b7280;
-    --bg: #ffffff;
-    --chip: #f3f4f6;
-
-    font-family:
-      ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
-      "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-  }
-
 .card {
-  width: min(860px, 100%);
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px 20px 16px;
-  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.03);
-}
+  flex: 1;
+  background: var(--color-white);
+  border: 1px solid var(--color-grey-200);
+  border-radius: var(--radius-md);
+  padding: var(--size-4);
+  box-shadow: var(--shadow-md);
+  font-family: var(--font-sans);
 
-.wrap header h2 {
-  margin: 0 0 4px;
-  font-size: 18px;
+  & h2 {
+    margin: 0 0 var(--size-2);
+    font-size: var(--scale-1);
+  }
 }
 
 .field {
@@ -229,34 +219,53 @@ label {
   height: 3em;
   border: none;
   background: transparent;
-  border-radius: 10px;
-  background: #f3f4f6;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
 
+  border: 1px solid var(--color-grey-300);
+
   &:hover {
-    background: #e5e7eb;
+    /* background: #e5e7eb; */
+    background: #f3f4f6;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-blue-500);
   }
 }
 
-.wrap :global(input[type="text"]),
-textarea {
-  width: 100%;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 14px;
-  outline: none;
-  background: #fff;
-  box-sizing: border-box;
-  font-family: inherit;
+.textareaContainer {
+  position: relative;
 }
 
+.card :global(input[type="text"]),
 textarea {
+  width: 100%;
+  border: 1px solid var(--color-grey-300);
+  border-radius: var(--radius-sm);
+  padding: var(--size-1) var(--size-3);
+  font-size: var(--scale-0);
+  outline: none;
+  background: var(--color-white);
+  box-sizing: border-box;
+  font-family: inherit;
   resize: vertical;
-  line-height: 1.4;
+  line-height: var(--line-md);
+  transition:
+    background-color 100ms ease-in-out;
+
+  .textareaContainer.isAutofilled & {
+    background: var(--color-blue-50);
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-blue-500);
+  }
 }
 
 .labelRow {
@@ -266,9 +275,6 @@ textarea {
   gap: 8px;
 }
 
-.textareaWrap {
-  position: relative;
-}
 
 .overlay {
   position: absolute;
@@ -286,7 +292,7 @@ textarea {
   height: 14px;
   border: 2px solid #cbd5e1;
   border-top-color: #4f46e5;
-  border-radius: 50%;
+  border-radius: var(--radius-100);
   display: inline-block;
   animation: spin 800ms linear infinite;
 }
@@ -302,23 +308,6 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-}
-
-.primary {
-  background: #111827;
-  color: white;
-  border: 0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-
-  &[disabled] {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-.primary:hover {
-  background: #0b1220;
 }
 
 .loading textarea {
@@ -359,18 +348,82 @@ textarea {
   }
 }
 
-.sparkles {
+.aiButton {
   flex: 1;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #FDFBC8;
-  color: #E5DA00;
   padding: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
 
-  & :global(svg) {
-    flex: 1;
+  opacity: 0;
+  background: none;
+  border: 1px solid transparent;
+  color: var(--color-grey-400);
+
+  transition:
+    border-color 100ms ease-in-out,
+    opacity 100ms ease-in-out;
+
+  .textareaContainer:hover & {
+    opacity: 1;
+  }
+
+  .isAutofilled & {
+    opacity: 1;
+    color: var(--color-blue-500);
+  }
+
+  &:hover,
+  &.isOpen {
+    opacity: 1;
+    border-color: #58ADA6;
   }
 }
+
+.aiMenu {
+  width: 250px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--scale-0);
+  background-color: var(--color-white);
+  border-radius: var(--radius-md);
+
+  & strong {
+    font-size: 12px;
+    display: block;
+    font-weight: 600;
+    color: #111827;
+  }
+
+  & .description {
+    font-size: 12px;
+    color: #111827;
+    line-height: 1.4;
+  }
+
+  & button {
+    flex: 1;
+
+    font: inherit;
+    border-radius: 10px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition:
+      box-shadow 120ms ease,
+      border-color 120ms ease,
+      transform 60ms ease;
+    border: 1px solid var(--color-blue-500);
+    background: linear-gradient(#ffffff, #f4f8f8);
+    color: #0b3c38;
+    font-weight: 700;
+
+   &:hover { box-shadow: 0 0 0 3px rgba(88,173,166,.18); }
+   &:active { transform: translateY(1px); }
+  }
+}
+
 </style>

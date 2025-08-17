@@ -21,7 +21,7 @@
     "@stayradiated/error-boundary": "4.3.0",
     "astro": "5.13.2",
     "emoji-mart": "5.6.0",
-    "es-toolkit": "1.39.9",
+    "es-toolkit": "1.39.10",
     "groq-sdk": "0.30.0",
     "match-sorter": "8.1.0",
     "pollen-css": "5.0.2",

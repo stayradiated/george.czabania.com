@@ -151,26 +151,26 @@ const handleSubmit = (event: SubmitEvent) => {
       {:else}
         <div class="overlay" transition:fade>
           <DropdownMenu placement="bottom-end" offset={4}>
-            {#snippet button({ isOpen, toggleMenu })}
-              <button class="aiButton" class:isOpen type="button" onclick={toggleMenu}>
+            {#snippet button({ toggleMenu })}
+              <Button size="sm" variant="outline" type="button" onclick={toggleMenu}>
                 <Sparkles size="1.5em" />
-              </button>
+              </Button>
             {/snippet}
 
             {#snippet children()}
-              {#if isAutofilledDescription}
-                <div class="aiMenu">
+              <div class="aiMenu">
+                {#if isAutofilledDescription}
                   <strong><Sparkles size="1em" /> Autofilled Description</strong>
                   <span class="description">This description was autofilled by the AI. Review and edit as needed.</span>
-                </div>
-              {:else}
-                <div class="aiMenu">
+                {:else if autofilledDescription.length > 0}
                   <strong><Sparkles size="1em" /> Autofilled Description</strong>
                   <span>{autofilledDescription}</span>
-
-                  <Button type="button" onclick={() => description = autofilledDescription}>Replace</Button>
-                </div>
-              {/if}
+                  <Button variant="primary" size="sm" type="button" onclick={() => description = autofilledDescription}>Replace</Button>
+                {:else}
+                  <strong><Sparkles size="1em" /> Autofilled Description</strong>
+                  <em>No autofill available</em>
+                {/if}
+              </div>
             {/snippet}
           </DropdownMenu>
         </div>

@@ -50,8 +50,8 @@ const { variant, size, children, ...restProps }: Props = $props();
     transition: opacity 100ms ease-in-out;
 
     &[disabled] {
-      color: var(--color-grey-100);
-      background: var(--color-grey-600);
+      border: none;
+      color: var(--color-grey-300);
       cursor: not-allowed;
     }
     &:not([disabled]):hover {

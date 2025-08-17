@@ -78,6 +78,10 @@ $effect(() => {
   });
 });
 
+const handleApplyDescription = () => {
+  description = autofilledDescription;
+};
+
 const handleSubmit = (event: SubmitEvent) => {
   event.preventDefault();
   if (name.trim() === "") {
@@ -144,12 +148,10 @@ const handleSubmit = (event: SubmitEvent) => {
         aria-describedby="descHelp"
         required
       ></textarea>
-      {#if isLoading && shouldAutofillDescription}
-        <div class="overlay" transition:fade>
+      <div class="overlay" transition:fade>
+        {#if isLoading && shouldAutofillDescription}
           <div class="spinner" aria-hidden="true"></div>
-        </div>
-      {:else}
-        <div class="overlay" transition:fade>
+        {:else if autofilledDescription.length > 0}
           <DropdownMenu placement="bottom-end" offset={4}>
             {#snippet button({ toggleMenu })}
               <Button size="sm" variant="outline" type="button" onclick={toggleMenu}>
@@ -157,27 +159,32 @@ const handleSubmit = (event: SubmitEvent) => {
               </Button>
             {/snippet}
 
-            {#snippet children()}
+            {#snippet children({ closeMenu })}
               <div class="aiMenu">
                 <header>
-                  <strong><Sparkles size="1em" /> Suggested Description</strong>
-                  {#if autofilledDescription.length > 0}
-                    <Button variant="primary" size="sm" type="button" onclick={() => description = autofilledDescription}>Replace</Button>
+                  <h4><Sparkles size="1em" /> Suggested Description</h4>
+
+                  {#if !isAutofilledDescription}
+                    <Button variant="primary" size="sm" type="button" onclick={() => { handleApplyDescription(); closeMenu() }}>Apply</Button>
                   {/if}
                 </header>
 
-                {#if isAutofilledDescription}
-                  <span class="description">This description was autofilled by the AI. Review and edit as needed.</span>
-                {:else if autofilledDescription.length > 0}
-                  <span>{autofilledDescription}</span>
-                {:else}
-                  <span class="description unavailable">No autofill available</span>
-                {/if}
+                <section>
+                  {#if isAutofilledDescription}
+                    <span class="description">This description was autofilled by the AI. Review and edit as needed.</span>
+                  {:else}
+                    <span class="suggestion">"{autofilledDescription}"</span>
+                  {/if}
+                </section>
               </div>
             {/snippet}
           </DropdownMenu>
-        </div>
-      {/if}
+        {:else}
+          <Button disabled size="sm" variant="outline" type="button" title="No autofill available">
+            <Sparkles size="1.5em" />
+          </Button>
+        {/if}
+      </div>
     </div>
   </div>
 
@@ -351,7 +358,6 @@ textarea {
 
 .aiMenu {
   width: var(--size-64);
-  padding: var(--size-2);
 
   font-size: var(--scale-0);
   background-color: var(--color-white);
@@ -359,11 +365,24 @@ textarea {
   box-shadow: var(--shadow-md);
   border: var(--size-px) solid var(--color-grey-200);
 
-  & strong {
-    font-size: 12px;
-    display: block;
-    font-weight: 600;
-    color: #111827;
+  & header {
+    margin-bottom: var(--size-2);
+    display: flex;
+    justify-content: space-between;
+    border-bottom: var(--size-px) solid var(--color-grey-200);
+    padding: var(--size-2);
+
+    & h4 {
+      margin: 0;
+    }
+  }
+
+  & section {
+    padding: var(--size-2);
+  }
+
+  & .suggestion {
+    font-size: var(--scale-0);
   }
 
   & .description {
@@ -373,16 +392,6 @@ textarea {
 
     &.unavailable {
       font-style: italic;
-    }
-  }
-
-  & header {
-    margin-bottom: var(--size-2);
-    display: flex;
-    justify-content: space-between;
-
-    & h4 {
-      margin: 0;
     }
   }
 }

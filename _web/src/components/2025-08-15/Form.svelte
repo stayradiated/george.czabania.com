@@ -159,16 +159,19 @@ const handleSubmit = (event: SubmitEvent) => {
 
             {#snippet children()}
               <div class="aiMenu">
+                <header>
+                  <strong><Sparkles size="1em" /> Suggested Description</strong>
+                  {#if autofilledDescription.length > 0}
+                    <Button variant="primary" size="sm" type="button" onclick={() => description = autofilledDescription}>Replace</Button>
+                  {/if}
+                </header>
+
                 {#if isAutofilledDescription}
-                  <strong><Sparkles size="1em" /> Autofilled Description</strong>
                   <span class="description">This description was autofilled by the AI. Review and edit as needed.</span>
                 {:else if autofilledDescription.length > 0}
-                  <strong><Sparkles size="1em" /> Autofilled Description</strong>
                   <span>{autofilledDescription}</span>
-                  <Button variant="primary" size="sm" type="button" onclick={() => description = autofilledDescription}>Replace</Button>
                 {:else}
-                  <strong><Sparkles size="1em" /> Autofilled Description</strong>
-                  <em>No autofill available</em>
+                  <span class="description unavailable">No autofill available</span>
                 {/if}
               </div>
             {/snippet}
@@ -187,7 +190,7 @@ const handleSubmit = (event: SubmitEvent) => {
 .card {
   flex: 1;
   background: var(--color-white);
-  border: 1px solid var(--color-grey-200);
+  border: var(--size-px) solid var(--color-grey-200);
   border-radius: var(--radius-md);
   padding: var(--size-4);
   box-shadow: var(--shadow-md);
@@ -225,7 +228,7 @@ label {
   align-items: center;
   justify-content: center;
 
-  border: 1px solid var(--color-grey-300);
+  border: var(--size-px) solid var(--color-grey-300);
 
   &:hover {
     /* background: #e5e7eb; */
@@ -245,7 +248,7 @@ label {
 .card :global(input[type="text"]),
 textarea {
   width: 100%;
-  border: 1px solid var(--color-grey-300);
+  border: var(--size-px) solid var(--color-grey-300);
   border-radius: var(--radius-sm);
   padding: var(--size-1) var(--size-3);
   font-size: var(--scale-0);
@@ -278,13 +281,11 @@ textarea {
 
 .overlay {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: var(--size-2);
+  right: var(--size-2);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2em;
-  height: 2em;
+  align-items: right;
+  justify-content: flex-end;
 }
 
 .spinner {
@@ -348,49 +349,15 @@ textarea {
   }
 }
 
-.aiButton {
-  flex: 1;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px;
-  font-weight: 600;
-  text-transform: uppercase;
-
-  opacity: 0;
-  background: none;
-  border: 1px solid transparent;
-  color: var(--color-grey-400);
-
-  transition:
-    border-color 100ms ease-in-out,
-    opacity 100ms ease-in-out;
-
-  .textareaContainer:hover & {
-    opacity: 1;
-  }
-
-  .isAutofilled & {
-    opacity: 1;
-    color: var(--color-blue-500);
-  }
-
-  &:hover,
-  &.isOpen {
-    opacity: 1;
-    border-color: #58ADA6;
-  }
-}
-
 .aiMenu {
-  width: 250px;
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
+  width: var(--size-64);
+  padding: var(--size-2);
+
   font-size: var(--scale-0);
   background-color: var(--color-white);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  border: var(--size-px) solid var(--color-grey-200);
 
   & strong {
     font-size: 12px;
@@ -400,29 +367,23 @@ textarea {
   }
 
   & .description {
-    font-size: 12px;
-    color: #111827;
-    line-height: 1.4;
+    font-size: var(--scale-00);
+    color: var(--color-grey-600);
+    line-height: var(--line-sm);
+
+    &.unavailable {
+      font-style: italic;
+    }
   }
 
-  & button {
-    flex: 1;
+  & header {
+    margin-bottom: var(--size-2);
+    display: flex;
+    justify-content: space-between;
 
-    font: inherit;
-    border-radius: 10px;
-    padding: 8px 10px;
-    cursor: pointer;
-    transition:
-      box-shadow 120ms ease,
-      border-color 120ms ease,
-      transform 60ms ease;
-    border: 1px solid var(--color-blue-500);
-    background: linear-gradient(#ffffff, #f4f8f8);
-    color: #0b3c38;
-    font-weight: 700;
-
-   &:hover { box-shadow: 0 0 0 3px rgba(88,173,166,.18); }
-   &:active { transform: translateY(1px); }
+    & h4 {
+      margin: 0;
+    }
   }
 }
 

@@ -17,7 +17,7 @@
     "@astrojs/svelte": "7.1.0",
     "@floating-ui/core": "1.7.3",
     "@floating-ui/dom": "1.7.3",
-    "@shikijs/transformers": "3.9.2",
+    "@shikijs/transformers": "3.10.0",
     "@stayradiated/error-boundary": "4.3.0",
     "astro": "5.13.2",
     "emoji-mart": "5.6.0",

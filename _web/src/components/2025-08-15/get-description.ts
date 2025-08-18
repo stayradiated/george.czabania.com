@@ -14,16 +14,16 @@ const $Schema = z.object({
   emoji: z.nullable(z.string()),
 });
 
-type SuggestDescriptionResult = z.infer<typeof $Schema | null>;
+type SuggestDescriptionResult = z.infer<typeof $Schema>;
 
 const fetchSuggestion = memoize(
   async (
     options: SuggestDescriptionOptions,
-  ): Promise<SuggestDescriptionResult | Error> => {
+  ): Promise<SuggestDescriptionResult | undefined | Error> => {
     const { labelName, signal } = options;
 
     if (labelName.trim() === "") {
-      return null;
+      return undefined;
     }
 
     return errorBoundary(() =>

@@ -2,7 +2,7 @@
 import type { HTMLButtonAttributes } from "svelte/elements";
 
 type Props = HTMLButtonAttributes & {
-  variant?: "primary" | "outline";
+  variant?: "primary" | "secondary" | "outline" | "dashed";
   size?: "sm" | "md" | "lg";
 };
 
@@ -14,7 +14,9 @@ const { variant, size, children, ...restProps }: Props = $props();
   class:size-md={size === 'md'}
   class:size-lg={size === 'lg'}
   class:primary={variant === 'primary'}
+  class:secondary={variant === 'secondary'}
   class:outline={variant === 'outline'}
+  class:dashed={variant === 'dashed'}
   {...restProps}
 >
   {@render children?.()}
@@ -40,10 +42,49 @@ const { variant, size, children, ...restProps }: Props = $props();
     }
   }
 
+  .secondary {
+    background: var(--color-white);
+    color: var(--color-grey-800);
+    border: none;
+    padding: var(--size-3) var(--size-4);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition:
+      background-color 100ms ease-in-out;
+
+    &[disabled] {
+      border: none;
+      color: var(--color-grey-300);
+      cursor: not-allowed;
+    }
+    &:not([disabled]):hover {
+      background: var(--color-grey-200);
+    }
+  }
+
   .outline {
     background: transparent;
     color: var(--color-black);
     border: 1px solid var(--color-grey-300);
+    padding: var(--size-3) var(--size-4);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: opacity 100ms ease-in-out;
+
+    &[disabled] {
+      border: none;
+      color: var(--color-grey-300);
+      cursor: not-allowed;
+    }
+    &:not([disabled]):hover {
+      background: var(--color-grey-100);
+    }
+  }
+
+  .dashed {
+    background: transparent;
+    color: var(--color-black);
+    border: 1px dashed var(--color-grey-300);
     padding: var(--size-3) var(--size-4);
     border-radius: var(--radius-md);
     cursor: pointer;

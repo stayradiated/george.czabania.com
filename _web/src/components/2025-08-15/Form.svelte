@@ -1,6 +1,5 @@
 <script lang="ts">
 import { untrack } from "svelte";
-import { fade } from "svelte/transition";
 import Button from "#src/components/ui/Button.svelte";
 import DebouncedInput from "../DebouncedInput.svelte";
 import DropdownMenu from "../DropdownMenu.svelte";
@@ -137,6 +136,38 @@ const handleSubmit = (event: SubmitEvent) => {
   <div class="field" class:loading={isLoading && shouldAutofillDescription}>
     <div class="labelRow">
       <label for="labelDescription">Description</label>
+
+      {#if isLoading && shouldAutofillDescription}
+        <div class="spinner" aria-hidden="true"></div>
+      {:else if autofilledDescription.length > 0}
+        <DropdownMenu placement="bottom-end" offset={4}>
+          {#snippet button({ toggleMenu })}
+            <Button size="sm" variant="secondary" type="button" onclick={toggleMenu}>
+              <Sparkles size="var(--size-4)" color="var(--color-blue-300)" />
+            </Button>
+          {/snippet}
+
+          {#snippet children({ closeMenu })}
+            <div class="aiMenu">
+              <header>
+                <h4><Sparkles size="1em" /> Suggested Description</h4>
+
+                {#if !isAutofilledDescription}
+                  <Button variant="primary" size="sm" type="button" onclick={() => { handleApplyDescription(); closeMenu() }}>Apply</Button>
+                {/if}
+              </header>
+
+              <section>
+                {#if isAutofilledDescription}
+                  <span class="description">This description was autofilled by the AI. Review and edit as needed.</span>
+                {:else}
+                  <span class="suggestion">"{autofilledDescription}"</span>
+                {/if}
+              </section>
+            </div>
+          {/snippet}
+        </DropdownMenu>
+      {/if}
     </div>
 
     <div class="textareaContainer" class:isAutofilled={isAutofilledDescription}>
@@ -148,43 +179,6 @@ const handleSubmit = (event: SubmitEvent) => {
         aria-describedby="descHelp"
         required
       ></textarea>
-      <div class="overlay" transition:fade>
-        {#if isLoading && shouldAutofillDescription}
-          <div class="spinner" aria-hidden="true"></div>
-        {:else if autofilledDescription.length > 0}
-          <DropdownMenu placement="bottom-end" offset={4}>
-            {#snippet button({ toggleMenu })}
-              <Button size="sm" variant="outline" type="button" onclick={toggleMenu}>
-                <Sparkles size="1.5em" />
-              </Button>
-            {/snippet}
-
-            {#snippet children({ closeMenu })}
-              <div class="aiMenu">
-                <header>
-                  <h4><Sparkles size="1em" /> Suggested Description</h4>
-
-                  {#if !isAutofilledDescription}
-                    <Button variant="primary" size="sm" type="button" onclick={() => { handleApplyDescription(); closeMenu() }}>Apply</Button>
-                  {/if}
-                </header>
-
-                <section>
-                  {#if isAutofilledDescription}
-                    <span class="description">This description was autofilled by the AI. Review and edit as needed.</span>
-                  {:else}
-                    <span class="suggestion">"{autofilledDescription}"</span>
-                  {/if}
-                </section>
-              </div>
-            {/snippet}
-          </DropdownMenu>
-        {:else}
-          <Button disabled size="sm" variant="outline" type="button" title="No autofill available">
-            <Sparkles size="1.5em" />
-          </Button>
-        {/if}
-      </div>
     </div>
   </div>
 
@@ -281,18 +275,8 @@ textarea {
 .labelRow {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-
-.overlay {
-  position: absolute;
-  top: var(--size-2);
-  right: var(--size-2);
-  display: flex;
-  align-items: right;
-  justify-content: flex-end;
+  justify-content: flex-start;
+  gap: var(--size-2);
 }
 
 .spinner {
@@ -389,10 +373,6 @@ textarea {
     font-size: var(--scale-00);
     color: var(--color-grey-600);
     line-height: var(--line-sm);
-
-    &.unavailable {
-      font-style: italic;
-    }
   }
 }
 

@@ -7,6 +7,8 @@ import Emoji from "../Emoji.svelte";
 import EmojiPicker from "../EmojiPicker.svelte";
 import Sparkles from "../icons/Sparkles.svelte";
 import { getDescription } from "./get-description.js";
+import Card from "#src/components/ui/Card.svelte";
+import Title from "#src/components/ui/Title.svelte";
 
 type Label = {
   name: string;
@@ -81,8 +83,7 @@ const handleApplyDescription = () => {
   description = autofilledDescription;
 };
 
-const handleSubmit = (event: SubmitEvent) => {
-  event.preventDefault();
+const handleSubmit = () => {
   if (name.trim() === "") {
     return;
   }
@@ -98,10 +99,10 @@ const handleSubmit = (event: SubmitEvent) => {
 };
 </script>
 
-<form onsubmit={handleSubmit} class="card">
-  <header>
-    <h2>Create Label (Demo)</h2>
-  </header>
+<Card>
+  {#snippet header()}
+    <Title level={2}>Create Label (Demo)</Title>
+  {/snippet}
 
   <div class="field">
     <label for="{uid}-name">Name</label>
@@ -182,25 +183,15 @@ const handleSubmit = (event: SubmitEvent) => {
     </div>
   </div>
 
-  <footer class="footer">
-    <Button type="submit" variant="primary" disabled={!canSubmit}>Create label</Button>
-  </footer>
-</form>
+  {#snippet footer()}
+    <Button variant="primary" disabled={!canSubmit} onclick={handleSubmit}>Create label</Button>
+  {/snippet}
+</Card>
 
 <style>
-.card {
-  flex: 1;
-  background: var(--color-white);
-  border: var(--size-px) solid var(--color-grey-200);
-  border-radius: var(--radius-md);
-  padding: var(--size-4);
-  box-shadow: var(--shadow-md);
-  font-family: var(--font-sans);
-
-  & h2 {
-    margin: 0 0 var(--size-2);
-    font-size: var(--scale-1);
-  }
+h2 {
+  margin: 0 0 var(--size-2);
+  font-size: var(--scale-1);
 }
 
 .field {
@@ -246,7 +237,7 @@ label {
   position: relative;
 }
 
-.card :global(input[type="text"]),
+.nameAndIcon :global(input[type="text"]),
 textarea {
   width: 100%;
   border: var(--size-px) solid var(--color-grey-300);
@@ -293,13 +284,6 @@ textarea {
   to {
     transform: rotate(360deg);
   }
-}
-
-.footer {
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
 }
 
 .loading textarea {

@@ -2,7 +2,9 @@
 import { untrack } from "svelte";
 import { fade } from "svelte/transition";
 import Button from "#src/components/ui/Button.svelte";
+import Card from "#src/components/ui/Card.svelte";
 import Emoji from "../Emoji.svelte";
+import Title from "#src/components/ui/Title.svelte";
 import Sparkles from "../icons/Sparkles.svelte";
 import { getLabel } from "./get-label.js";
 
@@ -106,20 +108,18 @@ const handleAddLabel = (label: Label) => {
 };
 </script>
 
-<div class="card">
-  <div class="field">
-    <div class="labelRow">
-      <label for="insightText">Add Insight</label>
-    </div>
+<Card>
+  {#snippet header()}
+    <Title level={2}>Add Insight</Title>
+  {/snippet}
 
-    <textarea
-      id="insightText"
-      bind:value={text}
-      placeholder="Enter your insight, observation, or note..."
-      rows={4}
-      class:loading={isLoading}
-    ></textarea>
-  </div>
+  <textarea
+    id="insightText"
+    bind:value={text}
+    placeholder="Enter your insight, observation, or note..."
+    rows={4}
+    class:loading={isLoading}
+  ></textarea>
 
   {#if isLoading}
     <div class="loadingIndicator">
@@ -155,27 +155,17 @@ const handleAddLabel = (label: Label) => {
     </div>
   {/if}
 
-  <footer class="footer" transition:fade={{ duration: 200 }}>
+  {#snippet footer()}
     <Button variant="secondary" type="button" onclick={handleClear}>
       Clear
     </Button>
     <Button variant="primary" type="button" onclick={handleSubmit}>
       Submit
     </Button>
-  </footer>
-</div>
+  {/snippet}
+</Card>
 
 <style>
-.card {
-  background: var(--color-white);
-  border: var(--size-px) solid var(--color-grey-200);
-  border-radius: var(--radius-md);
-  padding: var(--size-4);
-  box-shadow: var(--shadow-md);
-  font-family: var(--font-sans);
-  margin-top: var(--size-6);
-}
-
 .field {
   margin: var(--size-3) 0;
 }

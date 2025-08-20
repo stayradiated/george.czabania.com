@@ -2,6 +2,8 @@
 import Form from "./Form.svelte";
 import InsightForm from "./InsightForm.svelte";
 import LabelBadge from "./LabelBadge.svelte";
+import Card from "#src/components/ui/Card.svelte";
+import Title from "#src/components/ui/Title.svelte";
 
 type Label = {
   name: string;
@@ -33,22 +35,34 @@ const handleCreateLabel = (label: Label) => {
 };
 </script>
 
-<Form oncreate={handleCreateLabel} />
+<div class="container">
+  <Form oncreate={handleCreateLabel} />
 
-<h2>Labels</h2>
+  <Card>
+    {#snippet header()}
+      <Title level={2}>Labels</Title>
+    {/snippet}
 
-<div class="labelList">
-  {#each labelList as label}
-    <LabelBadge label={label} />
-  {/each}
+    <div class="labelList">
+      {#each labelList as label}
+        <LabelBadge label={label} />
+      {/each}
+    </div>
+  </Card>
+
+  <InsightForm {labelList} />
 </div>
 
-<InsightForm {labelList} />
-
 <style>
-.labelList {
+.container {
   display: flex;
   flex-direction: column;
   gap: var(--size-4);
+}
+
+.labelList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-2);
 }
 </style>

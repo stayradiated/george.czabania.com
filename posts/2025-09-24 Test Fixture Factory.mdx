@@ -8,25 +8,57 @@ tags: []
 description: "Notes on the `test-fixture-factory` library and how I use it to write clean maintainable tests."
 ---
 
-I love writing tests with [Vitest](https://vitest.dev/).
+My favourite framework for writing tests Javascript/Typescript code is [Vitest](https://vitest.dev/).
 
-One of my favourite features is [Test Context](https://main.vitest.dev/guide/test-context.html).
+One of my favourite features is it's ability to [Extend the Test Context](https://main.vitest.dev/guide/test-context.html#extend-test-context) with `text.extend`. Test Context is a great way to pass in reusable fixtures to each test, which can be executed concurrently. Each fixture can have it's own setup/teardown code and is only ran when a test requires it. 
 
-This feature is inspired by [Playwright's Test Fixtures](https://playwright.dev/docs/test-fixtures).
+```typescript
+import { test as baseTest } from 'vitest'
 
-## Without Text Context
+const test = baseTest.extend<{
+  todos: number[]
+}>({
+  todos: async ({ task }, use) => {
+    // setup
+    const todos = await createTodos()
 
-An important part of an integration test is setting up the test data in a particular state - ready to be tested upon.
-However, this can often balloon into many many lines of code for declaring dependencies that aren't relevant to the actual test - but rather required by the database as ppre-requisities to create the data we actually want to test.
+    // "await use()" blocks until the test completes
+    await use(todos)
+    
+    // teardown
+    deleteTodos(todos)
+  },
+})
 
-Here is an example from [Rough.app](https://rough.app/).
+// todos will be created
+test('with todos', ({ todos }) => {})
 
-I'm testing a function called `getNextPublicIdForNote`. Rough uses [ULID](https://github.com/ulid/spec)s to identify rows in our database. I love ULIDs, but they aren't very human friendly. It's much easier to refer to Document `3928` instead of Document `01K4D2CQMAN0EG015FHMZ87KZ3`. Whenever someone
-creates a new Insight in Rough, we assign it an incrementing user-facing (public) ID.
+// todos will not be created
+test('without todos', () => {})
+```
 
-This is done with the function `getNextPublicIdForNote({ db, workspaceId })`
+## Integration Tests
 
-I want to write some tests for this function.
+
+When writing an integration test, you will need to set up the application state in a particular way - ready to be tested upon. This can often require writing many lines of code for declaring dependencies that aren't directly related to the test - but rather required by database constraints.
+
+For example, I'm currently working on some code for [Rough.app](https://rough.app) which involves testing a function called `getNextPublicIdForDocument
+
+Rough uses [ULID](https://github.com/ulid/spec)s to identify rows in our database. I love ULIDs, but they aren't very friendly to my human brain. It's much easier to refer to a Document with a number - I am more likely to recall ID `#57`, but have no chance recognising `#01K4D2CQMAN0EG015FHMZ87KZ3`.
+
+Whenever someone creates a new Document in Rough, we assign it a private ULID to uniquely identify it in the database - and an also give it a human friendly numeric ID which is how we display it to the user.
+
+Here is the function signature:
+
+```typescript
+getNextPublicIdForDocument(options: {
+  db: DB,
+  workspaceId: WorkspaceId
+}): Promise<number | Error>
+```
+
+I want to write some tests for this function to ensure it works as expected.
+
 Before I can call the function, I need to insert a new workspace into the database.
 Our `workspace` column has several columns that I need to define, even though
 they aren't relevant to this test at all. (I could provide any combination of

@@ -1,52 +1,32 @@
 ---
-title: "Writing Tests with Test Fixture Factory"
-slug: "writing-tests-with-vitest-and-test-fixture-factory"
+title: "Focused tests with Test Fixture Factory"
+slug: "focused-tests-with-vitest-and-test-fixture-factory"
 date: "2025-09-24 12:00"
-publish: false
+publish: true
 type: post
 tags: []
 description: "Notes on the `test-fixture-factory` library and how I use it to write clean maintainable tests."
 ---
 
-My favourite framework for writing tests Javascript/Typescript code is [Vitest](https://vitest.dev/).
+My favourite JavaScript framework for writing tests is [Vitest](https://vitest.dev/).
 
-One of my favourite features is it's ability to [Extend the Test Context](https://main.vitest.dev/guide/test-context.html#extend-test-context) with `text.extend`. Test Context is a great way to pass in reusable fixtures to each test, which can be executed concurrently. Each fixture can have it's own setup/teardown code and is only ran when a test requires it. 
+One of my favourite features is its ability to [extend the Test Context](https://main.vitest.dev/guide/test-context.html#extend-test-context) with `test.extend`. Test Context is a great way to pass in reusable fixtures to each test, which can be executed concurrently. Each fixture can have its own setup/teardown code and is only run when a test requires it. 
 
-```typescript
-import { test as baseTest } from 'vitest'
-
-const test = baseTest.extend<{
-  todos: number[]
-}>({
-  todos: async ({ task }, use) => {
-    // setup
-    const todos = await createTodos()
-
-    // "await use()" blocks until the test completes
-    await use(todos)
-    
-    // teardown
-    deleteTodos(todos)
-  },
-})
-
-// todos will be created
-test('with todos', ({ todos }) => {})
-
-// todos will not be created
-test('without todos', () => {})
-```
+<Code
+    code={import("./2025-09-24/example/1-vitest-example.ts?raw")}
+    lang="ts"
+    title="example.test.ts"
+/>
 
 ## Integration Tests
 
+When writing an integration test, you will need to set up the application state in a specific way, ready to be tested. This can often require writing many lines of code for declaring dependencies that aren't directly related to the test, but rather required by database constraints.
 
-When writing an integration test, you will need to set up the application state in a particular way - ready to be tested upon. This can often require writing many lines of code for declaring dependencies that aren't directly related to the test - but rather required by database constraints.
+For example, I'm currently working on some code for [Rough.app](https://rough.app), which involves testing a function called `getNextPublicIdForDocument`.
 
-For example, I'm currently working on some code for [Rough.app](https://rough.app) which involves testing a function called `getNextPublicIdForDocument
+Rough uses [ULID](https://github.com/ulid/spec)s to identify rows in our database. I love ULIDs, but they aren't very friendly to my human brain. It's much easier to refer to a Document with a number - I am more likely to recall ID `#57`, but have no chance of recognising `#01K4D2CQMAN0EG015FHMZ87KZ3`.
 
-Rough uses [ULID](https://github.com/ulid/spec)s to identify rows in our database. I love ULIDs, but they aren't very friendly to my human brain. It's much easier to refer to a Document with a number - I am more likely to recall ID `#57`, but have no chance recognising `#01K4D2CQMAN0EG015FHMZ87KZ3`.
-
-Whenever someone creates a new Document in Rough, we assign it a private ULID to uniquely identify it in the database - and an also give it a human friendly numeric ID which is how we display it to the user.
+Whenever someone creates a new Document in Rough, we assign it a private ULID to uniquely identify it in the database, and also give it a human-friendly numeric ID, which is how we display it to the user.
 
 Here is the function signature:
 
@@ -57,383 +37,194 @@ getNextPublicIdForDocument(options: {
 }): Promise<number | Error>
 ```
 
-I want to write some tests for this function to ensure it works as expected.
+I want to write some tests for this function to ensure it works as expected. The ideal test would call the function and assert the result is the expected value.
 
-Before I can call the function, I need to insert a new workspace into the database.
-Our `workspace` column has several columns that I need to define, even though
-they aren't relevant to this test at all. (I could provide any combination of
-properties and it wouldn't affect the outcome of the test). This is noisy.
+Ideally, all I should need to write is:
 
-I also want to add a note to the workspace and test that the function returns
-the next highest number.
+<Code
+    code={import("./2025-09-24/example/2-ideal.test.ts?raw")}
+    lang="ts"
+    title="get-next-public-id-for-document.test.ts"
+/>
 
-This means I have to create a new note, and provide many properties that don't
-affect the test. I also have to create a new `content` row, as each `note` row
-must have a piece of content it holds.
+Spoiler alert: this is how our test will look at the end of this article!
 
-This test is 90% setup and 10% test.
+However, right now, this test doesn't work - Vitest doesn't know how to provide the `db`, `workspace`, or `createDocument` fixtures yet! We will need to teach Vitest how to insert these values into the database.
 
-```typescript title="get-next-public-id-for-note.test.ts" collapse={2-19} collapseStyle="collapsible-auto"
-// imports
-import { assertOk } from '@stayradiated/error-boundary'
-import { expect, test } from 'vitest'
+Our `workspace` table has several columns that I need to define, even though they aren't at all relevant to this test. I call these properties "noise" - as I could provide any combination of values and it wouldn't affect the outcome of the test.
 
-import { WorkspaceStatus, NoteStatus } from '#lib/enums.js'
+To test how the function behaves when there are existing `document` rows, I need to create a new `document` in the database. This also involves providing many properties that don't affect the test.
 
-import { getDb } from '#lib/server/db/get-db.js'
-import { deleteWorkspace } from '#lib/server/db/workspace/delete-workspace.js'
-import { insertWorkspace } from '#lib/server/db/workspace/insert-workspace.js'
-import { insertNote } from '#lib/server/db/note/insert-note.js'
-import { insertContent } from '#lib/server/db/content/insert-content.js'
+Also, due to the particular database constraints, all `document` rows must link to the `user` who created them. So I first must create a new `user` row.
 
-import { buildEmptyContent } from '#lib/tiptap/build-partial-content.js'
+As you can see below, getting this test working involves a _lot_ of setup code. Only 5% of the lines of code are actually relevant to the test; all the rest is noise.
 
-import { $WorkspaceName } from '#lib/core/workspace/workspace-name'
+<Code
+    code={import("./2025-09-24/example/3-without-test-context.test.ts?raw")}
+    lang="ts"
+    title="get-next-public-id-for-document.test.ts"
+/>
 
-import { genId } from '#lib/utils/gen-id.js'
+<Aside variant="info">
+  <span slot="title">What is that <code>assertOk()</code> function?</span>
 
-import { getNextPublicIdForNote } from './get-next-public-id-for-note.js'
+  The functions I'm working with return errors as values.
 
-test('when there is a single existing note', async () => {
-  // SETUP
-  const db = getDb()
-  const workspace = await insertWorkspace({
-    db,
-    workspace: {
-      id: genId(),
-      icon: '😀',
-      name: $WorkspaceName.parse('test'),
-      status: WorkspaceStatus.ACTIVE,
-      publicId: `test:${genId()}`,
-      version: 1,
-      icp: '',
-      strategy: '',
-      vision: '',
-      deletedAt: null,
-    },
-  })
-  assertOk(workspace)
+  ```typescript
+  const result = await insertWorkspace({ db, workspace })
 
-  const content = await insertContent({
-    db,
-    content: {
-      id: genId(),
-      workspaceId: workspace.id,
-      ...buildEmptyContent(),
-      version: 1,
-    },
-  })
-  assertOk(content)
+  typeof result    // Error | Workspace
+  typeof result.id // Property "id" does not exist on type "Error"
+  ```
 
-  const note = await insertNote({
-    db,
-    note: {
-      id: genId(),
-      workspaceId: workspace.id,
-      contentId: content.id,
-      lastModifiedByUserId: null,
-      status: NoteStatus.ACTIVE,
-      lastModifiedAt: Date.now(),
-      version: 1,
-      personId: null,
-      referenceId: null,
-      parentNoteId: null,
-      sortOrder: 1,
-      transcriptContentId: null,
+  Most of the time I will manually check if the value is an error and then handle it appropriately.
 
-      // NOTE: the value of this publicId impacts the test result
-      publicId: 1,
-    },
-  })
-  assertOk(note)
+  ```typescript
+  const result = await insertWorkspace({ db, workspace })
+  if (result instanceof Error) {
+    return new Error("Failed to insert workspace", { cause: result })
+  }
+  typeof result.id // WorkspaceId
+  ```
 
-  // TEST
-  const publicId = await getNextPublicIdForNote({
-    db,
-    workspaceId: workspace.id,
-  })
-  assertOk(publicId)
+  However, in the test, I am happy to let the error throw if it occurs.
 
-  expect(publicId).toBe(2)
+  ```typescript
+  if (result instanceof Error) {
+    throw result
+  }
+  ```
 
-  // TEARDOWN
-  await deleteWorkspace({ db, workspaceId: workspace.id })
-})
-```
+  To save manually typing, and to satisfy the TypeScript compiler, I use the `assertOk` function to do the above.
+
+  ```typescript
+  const result = await insertWorkspace({ db, workspace })
+  assertOk(result)
+  typeof result.id // WorkspaceId
+  ```
+
+</Aside>
 
 ## With Test Context
 
-```typescript title="get-next-public-id-for-note.test.ts" collapse={1-18} collapseStyle="collapsible-auto"
-import { assertOk } from '@stayradiated/error-boundary'
-import { expect, test } from 'vitest'
+We can refactor the above tests to use Test Context to handle the setup and teardown. With this change, we use `test.extend` to declare our fixtures outside of the test.
 
-import { WorkspaceStatus, NoteStatus } from '#lib/enums.js'
+Immediately, we see an improvement - we can reuse shared fixtures between tests, and each test only contains lines of code that are directly relevant.
 
-import { getDb } from '#lib/server/db/get-db.js'
-import { deleteWorkspace } from '#lib/server/db/workspace/delete-workspace.js'
-import { insertWorkspace } from '#lib/server/db/workspace/insert-workspace.js'
-import { insertNote } from '#lib/server/db/note/insert-note.js'
-import { insertContent } from '#lib/server/db/content/insert-content.js'
+<Code
+    code={import("./2025-09-24/example/4-with-test-context.test.ts?raw")}
+    lang="ts"
+    title="get-next-public-id-for-document.test.ts"
+/>
 
-import { buildEmptyContent } from '#lib/tiptap/build-partial-content.js'
-
-import { $WorkspaceName } from '#lib/core/workspace/workspace-name'
-
-import { genId } from '#lib/utils/gen-id.js'
-
-import { getNextPublicIdForNote } from './get-next-public-id-for-note.js'
-
-const test = anyTest.extend<{
-  db: KyselyDb
-  workspace: Workspace
-  createNote: (attrs: { publicId: number }) => Promise<Note>
-}>({
-  db: async ({}, use) => {
-    const db = getDb()
-    await use(db)
-  },
-  workspace: async ({ db }, use) => {
-    const workspace = await insertWorkspace({
-      db,
-      workspace: {
-        id: genId(),
-        icon: '😀',
-        name: $WorkspaceName.parse('test'),
-        status: WorkspaceStatus.ACTIVE,
-        publicId: `test:${genId()}`,
-        version: 1,
-        icp: '',
-        strategy: '',
-        vision: '',
-        deletedAt: null,
-      },
-    })
-    assertOk(workspace)
-    await use(workspace)
-    await deleteWorkspace({ db, workspaceId: workspace.id })
-  },
-  createNote: async ({ db, workspace }, use) => {
-    await use(async (attrs) => {
-      const content = await insertContent({
-        db,
-        content: {
-          id: genId(),
-          workspaceId: workspace.id,
-          ...buildEmptyContent(),
-          version: 1,
-        },
-      })
-      assertOk(content)
-
-      const note = await insertNote({
-        db,
-        note: {
-          id: genId(),
-          workspaceId: workspace.id,
-          contentId: content.id,
-          lastModifiedByUserId: null,
-          status: NoteStatus.ACTIVE,
-          lastModifiedAt: Date.now(),
-          version: 1,
-          personId: null,
-          referenceId: null,
-          parentNoteId: null,
-          sortOrder: 1,
-          transcriptContentId: null,
-
-          // pass through attrs
-          publicId: attrs.publicId,
-        },
-      })
-      assertOk(note)
-
-      return note
-    })
-  },
-})
-
-test('when there is a single existing note', async ({ db, workspace, createNote }) => {
-  await createNote({ publicId: 1 })
-
-  const publicId = await getNextPublicIdForNote({
-    db,
-    workspaceId: workspace.id,
-  })
-  assertOk(publicId)
-
-  expect(publicId).toBe(2)
-})
-```
+There is still a lot of setup/teardown code in this file, though. Code that will likely need to be repeated in other test files.
 
 ### With Test Fixture Factory
 
-This is how our test actully looks, using Test Context to automatically create
-a workspace for me.
+We can refactor our test fixtures into standalone files, so they can be used in any test. This also keeps our test files shorter, more focused, and easier to scan.
 
-I don't need to pass any values to `useWorkspace` - as the properties don't
-impact the test outcome, I can rely on defaults generated by the `useWorkspace`
-helper.
+Extracting these functions into separate files can be challenging, though, especially when using TypeScript.
 
-The workspace is automatically cleaned up when the test completes.
+I've created a small library to help make this easier: [`test-fixture-factory`](https://www.npmjs.com/package/test-fixture-factory)
 
-```typescript title="get-next-public-id-for-note.test.ts" collapse={1-7} collapseStyle="collapsible-auto"
-import { assertOk } from '@stayradiated/error-boundary'
-import { test as anyTest, expect } from 'vitest'
+Here is how the test looks after being refactored to use shared fixture factory functions.
 
-import { useDb } from '#lib/test/use-db.js'
-import { useWorkspace } from '#lib/test/use-workspace.js'
+Vitest can even automatically infer the types of each fixture - I don't need to manually specify the type of the Test Context.
 
-import { getNextPublicIdForNote } from './get-next-public-id-for-note.js'
+<Code
+    code={import("./2025-09-24/example/5-with-test-fixture-factory.test.ts?raw")}
+    lang="ts"
+/>
 
-const test = anyTest.extend({
-  db: useDb(),
-  workspace: useWorkspace(),
-})
-
-test('should start with 1', async ({ db, workspace }) => {
-  const publicId = await getNextPublicIdForNote({
-    db,
-    workspaceId: workspace.id,
-  })
-  assertOk(publicId)
-
-  expect(publicId).toBe(1)
-})
-```
+Now let's have a look at how these fixture factories are defined.
 
 ### `useDb`
 
-A simplified version of the `useDb` function from the Rough codebase.
+The simplest is `useDb`. This fixture is providing a database connection. It doesn't have any dependencies.
 
-Our actual implementation does some fun stuff with database transactions - so after the test completes we rollback the transaction instead of having to manually clean up. (inspired by the [Ecto Sandbox](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html)).
+It simply gets a database client and returns it as the `value`. How you connect to your database is up to you. I'm using [kysely](https://kysely.dev/) here - with the setup encapsulated within the `getDb` function (which is also used by the rest of the app to use the `db`).
 
-```typescript title="use-db.ts"
-import { createFactory } from 'test-fixture-factory'
+<Code
+    code={import("./2025-09-24/lib/test/use-db.ts?raw")}
+    lang="ts"
+    title="use-db.ts"
+/>
 
-import { getDb } from '$lib/server/db/get-db.js'
+Here is an example of how the `useDb()` provides a `db` value to the test:
 
-const dbFactory = createFactory('Db')
-  .withValue(() => ({ value: getDb() }))
-
-const useDb = dbFactory.useValue
-
-export { useDb }
-```
+<Code
+    code={import("./2025-09-24/example/6-use-db.test.ts?raw")}
+    lang="ts"
+    title="use-db.ts"
+/>
 
 ### `useWorkspace`
 
-And a simplified version of the `useWorkspace` function from the Rough codebase:
+Things get more interesting as we look at how to provide a `workspace` fixture.
 
-```typescript title="use-workspace.ts"
-import { assertOk } from '@stayradiated/error-boundary'
-import { createFactory } from 'test-fixture-factory'
+For `useWorkspace` to work, it requires a database connection. However, instead of getting our `db` instance, we can we can declare it as a dependency.
 
-import type { WorkspaceId } from '#lib/ids.js'
-import type { KyselyDb } from '#lib/server/db/types.js'
+- The `.withContext()` method is used to set the expected type of the Test Context - this is used to ensure we have type safety when accessing values in the context.
+- The `.withSchema()` method declares which attributes will be provided to the factory when it's constructing a new value.
+    - We set a single attribute `db`. Using the field method `.from("db")` means that this value will come from the `db` test context.
 
-import { WorkspaceStatus } from '#lib/enums.js'
+<Code
+    code={import("./2025-09-24/lib/test/use-workspace.ts?raw")}
+    lang="ts"
+    title="use-workspace.ts"
+/>
 
-import { deleteWorkspace } from '#lib/server/db/workspace/delete-workspace.js'
-import { insertWorkspace } from '#lib/server/db/workspace/insert-workspace.js'
-
-import { validateWorkspaceName } from '#lib/core/workspace/workspace-name.js'
-
-import { genId } from '#lib/utils/gen-id.js'
-
-const workspaceFactory = createFactory('Workspace')
-  .withContext<{
-    db: KyselyDb
-  }>()
-  .withSchema((f) => ({
-    db: f.type<KyselyDb>().from('db'),
-  }))
-  .withValue(async ({ db }) => {
-    const workspace = await insertWorkspace({
-      db,
-      workspace: {
-        id: genId(),
-        icon: '😀',
-        name: $WorkspaceName.parse('test'),
-        status: WorkspaceStatus.ACTIVE,
-        publicId: `test:${genId()}`,
-        version: 1,
-        icp: '',
-        strategy: '',
-        vision: '',
-        deletedAt: null,
-      },
-    })
-    assertOk(workspace)
-
-    return {
-      value: workspace,
-      destroy: async () => {
-        await deleteWorkspace({ db, workspaceId: workspace.id })
-      },
-    }
-  })
-
-const useCreateWorkspace = workspaceFactory.useCreateValue
-const useWorkspace = workspaceFactory.useValue
-
-export { useCreateWorkspace, useWorkspace }
-```
-
-### `useCreateNote`
-
----
-
-I could write this as:
+Because we declare `db` as a required dependency, the TypeScript compiler will warn us when it's missing:
 
 ```typescript
-test('if 5 existing notes, should return 6', async ({
-  db,
-  workspace,
-  createNote,
-}) => {
-  await Promise.all([
-    createNote({ publicId: 1 }),
-    createNote({ publicId: 2 }),
-    createNote({ publicId: 3 }),
-    createNote({ publicId: 4 }),
-    createNote({ publicId: 5 })
-  ])
-
-  const publicId = await getNextPublicIdForNote({
-    db,
-    workspaceId: workspace.id,
-  })
-  assertOk(publicId)
-
-  expect(publicId).toBe(6)
+const test = baseTest.extend({
+  workspace: useWorkspace(), // ⚠️ Property 'db' is missing in type …
 })
 ```
 
----
+The TypeScript compiler is satisfied when we provide the `db` fixture (using our `useDb()` factory). Now our test can receive its own unique `workspace` row - that is automatically cleaned up when the test finishes.
 
-# Test Fixture Factory
+The factory has two key methods: `useValue` and `useCreateValue`. These methods can be passed to the Vitest Test Context. A pattern I often use is to rename and export these methods so they can be used in the test.
 
-```typescript
-const dbFactory = createFactory('DB').withValue(() => {
-  const db = await getDbConnection()
-  return {
-    value: db,
-    destroy: () => db.close()
-  }
-})
+<Code
+    code={import("./2025-09-24/example/7-use-workspace.test.ts?raw")}
+    lang="ts"
+    title="use-workspace.ts"
+/>
 
-const userFactory = createFactory('User')
-  .withContext<{ db: DB }>()
-  .withValue(({ db }) => {
-    const user = await createUser(db)
-    return {
-      value: user,
-      destroy: () => deleteUser(db, user.id),
-    }
-  })
+### `useDocument`
 
-const test = anyTest.extend({
-  db: dbFactory.useValue(),
-  user: userFactory.useValue(),
-})
-```
+Defining the `useDocument` fixture factory highlights the `test-fixture-factory` library.
+
+To create a document, we need:
+
+1. A `db` connection
+2. A `workspaceId` value
+3. A `userId` value
+4. We also need to allow the test to specify the `publicId`, so it can control the test result.
+
+Ideally, the test shouldn't need to manually pass in the `workspaceId` and `userId` values. If there is a `workspace` and a `user` available in the context, then the factory should use those.
+
+Notice how our Test Context requires `workspace` and `user`, while our schema has slightly different names: workspaceId` and `publicId`. We use the field `.from()` method again, but this time pass a function as a second argument, which receives the test context and returns the value, so we can get the ID of the workspace.
+
+<Code
+    code={import("./2025-09-24/lib/test/use-document.ts?raw")}
+    lang="ts"
+    title="use-document.ts"
+/>
+
+## Wrapping Up
+
+With the `test-fixture-factory` library, you can write clean, focused tests, now clearly expressing the intent of your tests without being drowned in implementation details.
+
+The key benefits of this pattern are:
+
+- Reusable fixtures across test files
+- Automatic dependency resolution through the Test Context
+- Type-safe composition with TypeScript inference
+- Clear separation between test logic and setup code
+- Automatic cleanup
+
+If you want to try this approach in your own projects, you can find the `test-fixture-factory` library on [npm](https://www.npmjs.com/package/test-fixture-factory) and on [GitHub](https://github.com/stayradiated/test-fixture-factory).
+
+Happy testing!

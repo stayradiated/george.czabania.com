@@ -1,0 +1,103 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  variant?: "tip" | "caution" | "danger" | "info";
+}
+
+const { variant = 'info', title } = Astro.props as Props;
+
+const icon = (() => {
+  switch (variant) {
+    case "tip":
+      return "lucide:lightbulb";
+    case "caution":
+      return "lucide:triangle-alert";
+    case "danger":
+      return "lucide:skull";
+    case "info":
+      return "lucide:info";
+  }
+})();
+---
+
+<details
+  class:list={[
+    { tip: variant === "tip" },
+    { caution: variant === "caution" },
+    { danger: variant === "danger" },
+    { info: variant === "info" },
+  ]}
+>
+  <summary>
+    <Icon name={icon} class="icon" aria-hidden="true" />
+    <h5><slot name="title">{variant.toUpperCase()}</slot></h5>
+  </summary>
+
+  <slot />
+</details>
+
+<style>
+  details {
+    &.tip {
+      --color-bg: var(--color-green-50);
+      --color-border: var(--color-green-400);
+      --color-text: var(--color-green-950);
+    }
+
+    &.caution {
+      --color-bg: var(--color-yellow-50);
+      --color-border: var(--color-yellow-400);
+      --color-text: var(--color-yellow-950);
+    }
+
+    &.danger {
+      --color-bg: var(--color-red-550);
+      --color-border: var(--color-red-400);
+      --color-text: var(--color-red-950);
+    }
+
+    &.info {
+      --color-bg: var(--color-sky-50);
+      --color-border: var(--color-sky-400);
+      --color-text: var(--color-sky-950);
+    }
+
+    color: var(--color-text);
+    padding: var(--size-4);
+    background-color: var(--color-bg);
+    border-color: var(--color-border);
+    border-left-style: solid;
+    border-left-width: var(--size-1);
+    border-radius: var(--radius-xs);
+    margin-block: var(--size-3);
+
+    & summary::before {
+      content: "▶";
+      font-size: var(--scale-0);
+      color: var(--color-border);
+    }
+
+    &[open] summary::before {
+      content: "▼";
+    }
+  }
+
+  summary {
+    display: flex;
+    align-items: center;
+    gap: var(--size-2);
+  }
+
+  .icon {
+    width: var(--size-5);
+    height: var(--size-5);
+  }
+
+  h5 {
+    font-weight: var(--weight-bold);
+    font-size: var(--scale-0);
+    line-height: var(--line-xs);
+    margin: 0;
+  }
+</style>

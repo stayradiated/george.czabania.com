@@ -19,12 +19,12 @@ const $Post = z.object({
 });
 
 const notes = defineCollection({
-  loader: glob({ pattern: "notes/**/*.{md,mdx}", base: "../" }),
+  loader: glob({ pattern: "notes/*.{md,mdx}", base: "../" }),
   schema: $Note,
 });
 
 const posts = defineCollection({
-  loader: glob({ pattern: "posts/**/*.{md,mdx}", base: "../" }),
+  loader: glob({ pattern: "posts/*.{md,mdx}", base: "../" }),
   schema: $Post,
 });
 

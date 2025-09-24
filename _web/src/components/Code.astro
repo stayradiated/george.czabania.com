@@ -1,0 +1,23 @@
+---
+import { Code } from "astro-expressive-code/components"
+import { clean, getImportRange } from "./clean-code.ts"
+
+interface Props {
+  code: Promise<{ default: string }>
+  lang?: string
+  title?: string
+}
+
+const { code: modPromise, lang, title } = Astro.props
+const code = clean((await modPromise).default)
+const importRange = getImportRange(code)
+
+---
+
+<Code
+  code={code}
+  lang={lang}
+  title={title}
+  collapse={importRange}
+  collapseStyle="collapsible-auto"
+/>

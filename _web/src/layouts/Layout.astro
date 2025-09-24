@@ -14,7 +14,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="description" content={description || "Personal blog"} />
+    <meta name="description" content={description} />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
@@ -51,7 +51,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         letter-spacing: var(--letter-xl);
         border-radius: var(--radius-xs);
         font-family: var(--font-mono);
-        padding: var(--size-1) var(--size-3);
+        padding: 0 var(--size-4);
         line-height: var(--line-xl);
         text-transform: uppercase;
 
@@ -101,7 +101,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <div class="container">
       <header>
         <nav>
-          <a href="/" class="nav-logo">• by george •</a>
+          <a href="/" class="nav-logo">by george</a>
           <div class="nav-links">
             <a href="/posts">Posts</a>
             <a href="/notes">Notes</a>
@@ -113,7 +113,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         <slot />
       </main>
       <footer>
-        <p>&copy; {new Date().getFullYear()} Personal Blog. <a href="/rss.xml">RSS</a></p>
+        <p>&copy; {new Date().getFullYear()} George Czabania</p>
       </footer>
     </div>
   </body>

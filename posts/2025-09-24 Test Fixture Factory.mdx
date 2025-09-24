@@ -162,7 +162,7 @@ Here is an example of how the `useDb()` provides a `db` value to the test:
 
 Things get more interesting as we look at how to provide a `workspace` fixture.
 
-For `useWorkspace` to work, it requires a database connection. However, instead of getting our `db` instance, we can we can declare it as a dependency.
+For `useWorkspace` to work, it requires a database connection. However, instead of getting our `db` instance, we can declare it as a dependency.
 
 - The `.withContext()` method is used to set the expected type of the Test Context - this is used to ensure we have type safety when accessing values in the context.
 - The `.withSchema()` method declares which attributes will be provided to the factory when it's constructing a new value.

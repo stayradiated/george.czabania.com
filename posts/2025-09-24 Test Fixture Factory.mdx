@@ -205,7 +205,7 @@ To create a document, we need:
 
 Ideally, the test shouldn't need to manually pass in the `workspaceId` and `userId` values. If there is a `workspace` and a `user` available in the context, then the factory should use those.
 
-Notice how our Test Context requires `workspace` and `user`, while our schema has slightly different names: workspaceId` and `publicId`. We use the field `.from()` method again, but this time pass a function as a second argument, which receives the test context and returns the value, so we can get the ID of the workspace.
+Notice how our Test Context requires `workspace` and `user`, while our schema has slightly different names: `workspaceId` and `publicId`. We use the field `.from()` method again, but this time pass a function as a second argument, which receives the test context and returns the value, so we can get the ID of the workspace.
 
 <Code
     code={import("./2025-09-24/lib/test/use-document.ts?raw")}

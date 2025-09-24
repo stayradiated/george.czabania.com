@@ -95,9 +95,11 @@ const { title, date, tags, description, type } = post.data;
     & :global(li) {
       margin-bottom: 0.5rem;
     }
-    & :global(p > code) {
+    & :global(p > code),
+    & :global(li > code) {
       background-color: var(--color-stone-100);
       padding: 0 var(--size-1);
+      border-radius: var(--radius-xs);
     }
   }
 </style>

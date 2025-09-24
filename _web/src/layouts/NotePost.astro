@@ -93,22 +93,6 @@ const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
-  /* Shiki syntax highlighting adjustments */
-  .note-post-content .astro-code {
-    background-color: #f6f8fa !important;
-    padding: 1.5rem;
-    border-radius: 0.5rem;
-    margin: 1.5rem 0;
-    font-size: 0.95rem;
-    line-height: 1.6;
-  }
-  .note-post-content .astro-code code {
-    background-color: transparent;
-    padding: 0;
-    font-size: 0.95rem;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
   .note-post-content blockquote {
     border-left: 3px solid #e5e7eb;
     padding-left: 1rem;
@@ -145,15 +129,6 @@ const pageDescription = description || `Note from ${date.toLocaleDateString()}`;
   }
   .note-post-action:hover {
     color: #2563eb;
-  }
-
-  /* Code highlighting styles */
-  .note-post-content :global(.line.highlighted) {
-    background-color: #fff3cd;
-    display: block;
-    margin: 0 -1.5rem;
-    padding: 0 1.5rem;
-    box-shadow: inset 3px 0 0 #ffc107;
   }
 </style>
 

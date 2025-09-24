@@ -45,13 +45,13 @@ The `.next()` method returns an object with two properties:
 
 Let's update our greet function to return a value (instead of logging it):
 
-```typescript
+```typescript {2, 5}
 function* greet(name: string) {
-  return `Hello ${name}!` // [!code highlight]
+  return `Hello ${name}!`
 }
 
 const gen = greet('George')
-gen.next() // { value: 'Hello George', done: true } // [!code highlight]
+gen.next() // { value: 'Hello George', done: true }
 ```
 
 ## Yield
@@ -62,9 +62,9 @@ When the function executes, it will pause when it hits a `yield`. The value that
 
 To continue execution, we must call `.next()` _again_.
 
-```typescript
+```typescript {2}
 function* greet(name: string) {
-  yield 'taking a break' // [!code highlight]
+  yield 'taking a break'
   return `Hello ${name}`
 }
 
@@ -82,15 +82,15 @@ When we resume execution with `.next()`, we may pass a value argument that the `
 
 Check this out:
 
-```typescript
+```typescript {2, 8}
 function* greet(name: string) {
-  const verb = yield // [!code highlight]
+  const verb = yield
   return `${verb} ${name}`
 }
 
 const gen = greet('George')
 gen.next()      // { value: undefined, done: false }
-gen.next('Hey') // { value: 'Hey George', done: true } // [!code highlight]
+gen.next('Hey') // { value: 'Hey George', done: true }
 ```
 
 ## Promises
@@ -315,10 +315,10 @@ function* suggestFavouriteFood (name: string): StringGenerator {
 
 To keep typescript happy, we need to update our `StringGenerator` type - as our generators may now `yield` other generators!
 
-```typescript
+```typescript {3}
 type StringGenerator = Generator<
   // yield value
-  Promise<string> | StringGenerator, // [!code highlight]
+  Promise<string> | StringGenerator,
   // function return value
   string,
   // result of yielding
@@ -328,7 +328,7 @@ type StringGenerator = Generator<
 
 Our `run` helper also needs to handle receiving a generator from `gen.next()`. If the `value` isn't a Promise, then it's a generator instance - and we can resolve its value by passing it back through `run` again!
 
-```typescript
+```typescript {13-17}
 async function run(gen: StringGenerator): Promise<string> {
   let cmd: ["next", string] | ["throw", unknown] = ["next", ""]
 
@@ -341,11 +341,11 @@ async function run(gen: StringGenerator): Promise<string> {
     }
 
     try {
-      if (result.value instanceof Promise) { // [!code highlight]
-        cmd = ["next", await result.value] // [!code highlight]
-      } else { // [!code highlight]
-        cmd = ["next", await run(result.value)] // [!code highlight]
-      } // [!code highlight]
+      if (result.value instanceof Promise)
+        cmd = ["next", await result.value]
+      } else
+        cmd = ["next", await run(result.value)]
+      }
     } catch (error) {
       cmd = ["throw", error]
     }

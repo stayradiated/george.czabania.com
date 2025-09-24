@@ -59,7 +59,7 @@ const sortedMonths = Array.from(postsByMonth.keys()).sort((a, b) =>
 
 <Layout title="Archive" description="Posts organized by date">
   <h1 class="page-title">Archive</h1>
-  
+
   {sortedMonths.length === 0 ? (
     <p class="no-posts">No posts published yet.</p>
   ) : (
@@ -67,18 +67,18 @@ const sortedMonths = Array.from(postsByMonth.keys()).sort((a, b) =>
       {sortedMonths.map(month => {
         const monthPosts = postsByMonth.get(month)!;
         const [year, monthNum] = month.split('-');
-        const monthName = new Date(parseInt(year), parseInt(monthNum) - 1).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'long' 
+        const monthName = new Date(parseInt(year), parseInt(monthNum) - 1).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long'
         });
-        
+
         return (
           <section>
             <h2 class="archive-month-title">{monthName}</h2>
             <ul class="archive-posts">
               {monthPosts.map(post => (
                 <li class="archive-post">
-                  <a href={`/blog/${post.id}`}>
+                  <a href={`/post/${post.id}`}>
                     {post.data.title}
                   </a>
                   <span class="archive-post-date">

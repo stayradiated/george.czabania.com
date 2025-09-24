@@ -1,0 +1,407 @@
+---
+title: "Writing Tests with Test Fixture Factory"
+slug: "writing-tests-with-vitest-and-test-fixture-factory"
+date: "2025-09-24 12:00"
+publish: false
+type: post
+tags: []
+description: "Notes on the `test-fixture-factory` library and how I use it to write clean maintainable tests."
+---
+
+I love writing tests with [Vitest](https://vitest.dev/).
+
+One of my favourite features is [Test Context](https://main.vitest.dev/guide/test-context.html).
+
+This feature is inspired by [Playwright's Test Fixtures](https://playwright.dev/docs/test-fixtures).
+
+## Without Text Context
+
+An important part of an integration test is setting up the test data in a particular state - ready to be tested upon.
+However, this can often balloon into many many lines of code for declaring dependencies that aren't relevant to the actual test - but rather required by the database as ppre-requisities to create the data we actually want to test.
+
+Here is an example from [Rough.app](https://rough.app/).
+
+I'm testing a function called `getNextPublicIdForNote`. Rough uses [ULID](https://github.com/ulid/spec)s to identify rows in our database. I love ULIDs, but they aren't very human friendly. It's much easier to refer to Document `3928` instead of Document `01K4D2CQMAN0EG015FHMZ87KZ3`. Whenever someone
+creates a new Insight in Rough, we assign it an incrementing user-facing (public) ID.
+
+This is done with the function `getNextPublicIdForNote({ db, workspaceId })`
+
+I want to write some tests for this function.
+Before I can call the function, I need to insert a new workspace into the database.
+Our `workspace` column has several columns that I need to define, even though
+they aren't relevant to this test at all. (I could provide any combination of
+properties and it wouldn't affect the outcome of the test). This is noisy.
+
+I also want to add a note to the workspace and test that the function returns
+the next highest number.
+
+This means I have to create a new note, and provide many properties that don't
+affect the test. I also have to create a new `content` row, as each `note` row
+must have a piece of content it holds.
+
+This test is 90% setup and 10% test.
+
+```typescript title="get-next-public-id-for-note.test.ts" collapse={2-19} collapseStyle="collapsible-auto"
+// imports
+import { assertOk } from '@stayradiated/error-boundary'
+import { expect, test } from 'vitest'
+
+import { WorkspaceStatus, NoteStatus } from '#lib/enums.js'
+
+import { getDb } from '#lib/server/db/get-db.js'
+import { deleteWorkspace } from '#lib/server/db/workspace/delete-workspace.js'
+import { insertWorkspace } from '#lib/server/db/workspace/insert-workspace.js'
+import { insertNote } from '#lib/server/db/note/insert-note.js'
+import { insertContent } from '#lib/server/db/content/insert-content.js'
+
+import { buildEmptyContent } from '#lib/tiptap/build-partial-content.js'
+
+import { $WorkspaceName } from '#lib/core/workspace/workspace-name'
+
+import { genId } from '#lib/utils/gen-id.js'
+
+import { getNextPublicIdForNote } from './get-next-public-id-for-note.js'
+
+test('when there is a single existing note', async () => {
+  // SETUP
+  const db = getDb()
+  const workspace = await insertWorkspace({
+    db,
+    workspace: {
+      id: genId(),
+      icon: '😀',
+      name: $WorkspaceName.parse('test'),
+      status: WorkspaceStatus.ACTIVE,
+      publicId: `test:${genId()}`,
+      version: 1,
+      icp: '',
+      strategy: '',
+      vision: '',
+      deletedAt: null,
+    },
+  })
+  assertOk(workspace)
+
+  const content = await insertContent({
+    db,
+    content: {
+      id: genId(),
+      workspaceId: workspace.id,
+      ...buildEmptyContent(),
+      version: 1,
+    },
+  })
+  assertOk(content)
+
+  const note = await insertNote({
+    db,
+    note: {
+      id: genId(),
+      workspaceId: workspace.id,
+      contentId: content.id,
+      lastModifiedByUserId: null,
+      status: NoteStatus.ACTIVE,
+      lastModifiedAt: Date.now(),
+      version: 1,
+      personId: null,
+      referenceId: null,
+      parentNoteId: null,
+      sortOrder: 1,
+      transcriptContentId: null,
+
+      // NOTE: the value of this publicId impacts the test result
+      publicId: 1,
+    },
+  })
+  assertOk(note)
+
+  // TEST
+  const publicId = await getNextPublicIdForNote({
+    db,
+    workspaceId: workspace.id,
+  })
+  assertOk(publicId)
+
+  expect(publicId).toBe(2)
+
+  // TEARDOWN
+  await deleteWorkspace({ db, workspaceId: workspace.id })
+})
+```
+
+## With Test Context
+
+```typescript title="get-next-public-id-for-note.test.ts" collapse={1-18} collapseStyle="collapsible-auto"
+import { assertOk } from '@stayradiated/error-boundary'
+import { expect, test } from 'vitest'
+
+import { WorkspaceStatus, NoteStatus } from '#lib/enums.js'
+
+import { getDb } from '#lib/server/db/get-db.js'
+import { deleteWorkspace } from '#lib/server/db/workspace/delete-workspace.js'
+import { insertWorkspace } from '#lib/server/db/workspace/insert-workspace.js'
+import { insertNote } from '#lib/server/db/note/insert-note.js'
+import { insertContent } from '#lib/server/db/content/insert-content.js'
+
+import { buildEmptyContent } from '#lib/tiptap/build-partial-content.js'
+
+import { $WorkspaceName } from '#lib/core/workspace/workspace-name'
+
+import { genId } from '#lib/utils/gen-id.js'
+
+import { getNextPublicIdForNote } from './get-next-public-id-for-note.js'
+
+const test = anyTest.extend<{
+  db: KyselyDb
+  workspace: Workspace
+  createNote: (attrs: { publicId: number }) => Promise<Note>
+}>({
+  db: async ({}, use) => {
+    const db = getDb()
+    await use(db)
+  },
+  workspace: async ({ db }, use) => {
+    const workspace = await insertWorkspace({
+      db,
+      workspace: {
+        id: genId(),
+        icon: '😀',
+        name: $WorkspaceName.parse('test'),
+        status: WorkspaceStatus.ACTIVE,
+        publicId: `test:${genId()}`,
+        version: 1,
+        icp: '',
+        strategy: '',
+        vision: '',
+        deletedAt: null,
+      },
+    })
+    assertOk(workspace)
+    await use(workspace)
+    await deleteWorkspace({ db, workspaceId: workspace.id })
+  },
+  createNote: async ({ db, workspace }, use) => {
+    await use(async (attrs) => {
+      const content = await insertContent({
+        db,
+        content: {
+          id: genId(),
+          workspaceId: workspace.id,
+          ...buildEmptyContent(),
+          version: 1,
+        },
+      })
+      assertOk(content)
+
+      const note = await insertNote({
+        db,
+        note: {
+          id: genId(),
+          workspaceId: workspace.id,
+          contentId: content.id,
+          lastModifiedByUserId: null,
+          status: NoteStatus.ACTIVE,
+          lastModifiedAt: Date.now(),
+          version: 1,
+          personId: null,
+          referenceId: null,
+          parentNoteId: null,
+          sortOrder: 1,
+          transcriptContentId: null,
+
+          // pass through attrs
+          publicId: attrs.publicId,
+        },
+      })
+      assertOk(note)
+
+      return note
+    })
+  },
+})
+
+test('when there is a single existing note', async ({ db, workspace, createNote }) => {
+  await createNote({ publicId: 1 })
+
+  const publicId = await getNextPublicIdForNote({
+    db,
+    workspaceId: workspace.id,
+  })
+  assertOk(publicId)
+
+  expect(publicId).toBe(2)
+})
+```
+
+### With Test Fixture Factory
+
+This is how our test actully looks, using Test Context to automatically create
+a workspace for me.
+
+I don't need to pass any values to `useWorkspace` - as the properties don't
+impact the test outcome, I can rely on defaults generated by the `useWorkspace`
+helper.
+
+The workspace is automatically cleaned up when the test completes.
+
+```typescript title="get-next-public-id-for-note.test.ts" collapse={1-7} collapseStyle="collapsible-auto"
+import { assertOk } from '@stayradiated/error-boundary'
+import { test as anyTest, expect } from 'vitest'
+
+import { useDb } from '#lib/test/use-db.js'
+import { useWorkspace } from '#lib/test/use-workspace.js'
+
+import { getNextPublicIdForNote } from './get-next-public-id-for-note.js'
+
+const test = anyTest.extend({
+  db: useDb(),
+  workspace: useWorkspace(),
+})
+
+test('should start with 1', async ({ db, workspace }) => {
+  const publicId = await getNextPublicIdForNote({
+    db,
+    workspaceId: workspace.id,
+  })
+  assertOk(publicId)
+
+  expect(publicId).toBe(1)
+})
+```
+
+### `useDb`
+
+A simplified version of the `useDb` function from the Rough codebase.
+
+Our actual implementation does some fun stuff with database transactions - so after the test completes we rollback the transaction instead of having to manually clean up. (inspired by the [Ecto Sandbox](https://hexdocs.pm/ecto_sql/Ecto.Adapters.SQL.Sandbox.html)).
+
+```typescript title="use-db.ts"
+import { createFactory } from 'test-fixture-factory'
+
+import { getDb } from '$lib/server/db/get-db.js'
+
+const dbFactory = createFactory('Db')
+  .withValue(() => ({ value: getDb() }))
+
+const useDb = dbFactory.useValue
+
+export { useDb }
+```
+
+### `useWorkspace`
+
+And a simplified version of the `useWorkspace` function from the Rough codebase:
+
+```typescript title="use-workspace.ts"
+import { assertOk } from '@stayradiated/error-boundary'
+import { createFactory } from 'test-fixture-factory'
+
+import type { WorkspaceId } from '#lib/ids.js'
+import type { KyselyDb } from '#lib/server/db/types.js'
+
+import { WorkspaceStatus } from '#lib/enums.js'
+
+import { deleteWorkspace } from '#lib/server/db/workspace/delete-workspace.js'
+import { insertWorkspace } from '#lib/server/db/workspace/insert-workspace.js'
+
+import { validateWorkspaceName } from '#lib/core/workspace/workspace-name.js'
+
+import { genId } from '#lib/utils/gen-id.js'
+
+const workspaceFactory = createFactory('Workspace')
+  .withContext<{
+    db: KyselyDb
+  }>()
+  .withSchema((f) => ({
+    db: f.type<KyselyDb>().from('db'),
+  }))
+  .withValue(async ({ db }) => {
+    const workspace = await insertWorkspace({
+      db,
+      workspace: {
+        id: genId(),
+        icon: '😀',
+        name: $WorkspaceName.parse('test'),
+        status: WorkspaceStatus.ACTIVE,
+        publicId: `test:${genId()}`,
+        version: 1,
+        icp: '',
+        strategy: '',
+        vision: '',
+        deletedAt: null,
+      },
+    })
+    assertOk(workspace)
+
+    return {
+      value: workspace,
+      destroy: async () => {
+        await deleteWorkspace({ db, workspaceId: workspace.id })
+      },
+    }
+  })
+
+const useCreateWorkspace = workspaceFactory.useCreateValue
+const useWorkspace = workspaceFactory.useValue
+
+export { useCreateWorkspace, useWorkspace }
+```
+
+### `useCreateNote`
+
+---
+
+I could write this as:
+
+```typescript
+test('if 5 existing notes, should return 6', async ({
+  db,
+  workspace,
+  createNote,
+}) => {
+  await Promise.all([
+    createNote({ publicId: 1 }),
+    createNote({ publicId: 2 }),
+    createNote({ publicId: 3 }),
+    createNote({ publicId: 4 }),
+    createNote({ publicId: 5 })
+  ])
+
+  const publicId = await getNextPublicIdForNote({
+    db,
+    workspaceId: workspace.id,
+  })
+  assertOk(publicId)
+
+  expect(publicId).toBe(6)
+})
+```
+
+---
+
+# Test Fixture Factory
+
+```typescript
+const dbFactory = createFactory('DB').withValue(() => {
+  const db = await getDbConnection()
+  return {
+    value: db,
+    destroy: () => db.close()
+  }
+})
+
+const userFactory = createFactory('User')
+  .withContext<{ db: DB }>()
+  .withValue(({ db }) => {
+    const user = await createUser(db)
+    return {
+      value: user,
+      destroy: () => deleteUser(db, user.id),
+    }
+  })
+
+const test = anyTest.extend({
+  db: dbFactory.useValue(),
+  user: userFactory.useValue(),
+})
+```

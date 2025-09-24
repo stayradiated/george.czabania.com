@@ -11,26 +11,27 @@
     "pollen": "pollen --output ./src/pollen.css"
   },
   "dependencies": {
-    "@astrojs/mdx": "4.3.4",
+    "@astrojs/mdx": "4.3.6",
     "@astrojs/rss": "4.0.12",
-    "@astrojs/sitemap": "3.5.0",
-    "@astrojs/svelte": "7.1.0",
+    "@astrojs/sitemap": "3.6.0",
+    "@astrojs/svelte": "7.1.1",
+    "@expressive-code/plugin-collapsible-sections": "0.41.3",
     "@floating-ui/core": "1.7.3",
-    "@floating-ui/dom": "1.7.3",
-    "@shikijs/transformers": "3.10.0",
+    "@floating-ui/dom": "1.7.4",
     "@stayradiated/error-boundary": "4.3.0",
-    "astro": "5.13.2",
+    "astro": "5.13.10",
+    "astro-expressive-code": "^0.41.3",
     "emoji-mart": "5.6.0",
     "es-toolkit": "1.39.10",
-    "groq-sdk": "0.30.0",
+    "groq-sdk": "0.32.0",
     "match-sorter": "8.1.0",
     "pollen-css": "5.0.2",
-    "svelte": "5.38.2",
+    "svelte": "5.39.4",
     "typescript": "5.9.2",
-    "zod": "4.0.17"
+    "zod": "4.1.11"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
-    "@lucide/svelte": "0.540.0"
+    "@biomejs/biome": "2.2.4",
+    "@lucide/svelte": "0.544.0"
   }
 }

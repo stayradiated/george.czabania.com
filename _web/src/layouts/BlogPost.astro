@@ -48,95 +48,53 @@ const { title, date, tags, description, type } = post.data;
   }
   .blog-post-content {
     line-height: 1.75;
-  }
-  .blog-post-content :global(h1),
-  .blog-post-content :global(h2),
-  .blog-post-content :global(h3) {
-    margin-top: 2rem;
-    margin-bottom: 1rem;
-    font-weight: bold;
-  }
-  .blog-post-content :global(h1) {
-    font-size: 1.5rem;
-  }
-  .blog-post-content :global(h2) {
-    font-size: 1.25rem;
-  }
-  .blog-post-content :global(h3) {
-    font-size: 1.125rem;
-  }
-  .blog-post-content :global(p) {
-    margin-bottom: 1rem;
-  }
-  .blog-post-content :global(ul),
-  .blog-post-content :global(ol) {
-    margin-bottom: 1rem;
-    padding-left: 1.5rem;
-  }
-  .blog-post-content :global(code) {
-    background-color: #f9fafb;
-    padding: 0.125em 0.375em;
-    border-radius: 0.25rem;
-    font-size: 0.875em;
-    font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
-    border: 1px solid #e5e7eb;
-  }
-  .blog-post-content :global(pre) {
-    background-color: #fafbfc;
-    padding: 1.25rem 1.5rem;
-    border-radius: 0.5rem;
-    overflow-x: auto;
-    margin: 1.5rem -1rem;
-    line-height: 1.6;
-    font-size: 0.875rem;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  }
-  .blog-post-content :global(pre code) {
-    background-color: transparent;
-    padding: 0;
-    font-size: inherit;
-    white-space: pre;
-    word-wrap: normal;
-    overflow-wrap: normal;
-    border: none;
-  }
-  .blog-post-content :global(blockquote) {
-    border-left: 4px solid #e5e7eb;
-    padding-left: 1rem;
-    margin: 1rem 0;
-    font-style: italic;
-  }
-  .blog-post-content :global(strong) {
-    font-weight: 600;
-  }
-  .blog-post-content :global(a) {
-    color: #2563eb;
-    text-decoration: underline;
-  }
-  .blog-post-content :global(a:hover) {
-    color: #1d4ed8;
-  }
-  .blog-post-content :global(li) {
-    margin-bottom: 0.5rem;
-  }
 
-  /* Responsive adjustments for code blocks */
-  @media (min-width: 768px) {
-    .blog-post-content :global(pre) {
-      margin: 1.5rem 0;
-      padding: 1.5rem 2rem;
+    & :global(h1),
+    & :global(h2),
+    & :global(h3) {
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      font-weight: bold;
     }
-  }
-
-  /* Code highlighting styles */
-  .blog-post-content :global(.line.highlighted) {
-    background-color: #fff3cd;
-    display: inline-block;
-    margin: 0 -1.5rem;
-    padding: 0 1.5rem;
-    width: 100%;
-    box-shadow: inset 3px 0 0 #ffc107;
+    & :global(h1) {
+      font-size: 1.5rem;
+    }
+    & :global(h2) {
+      font-size: 1.25rem;
+    }
+    & :global(h3) {
+      font-size: 1.125rem;
+    }
+    & :global(p) {
+      margin-bottom: 1rem;
+    }
+    & :global(hr) {
+      border-color: var(--color-stone-100);
+    }
+    & :global(ul),
+    & :global(ol) {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+    & :global(blockquote) {
+      border-left: 4px solid #e5e7eb;
+      padding-left: 1rem;
+      margin: 1rem 0;
+      font-style: italic;
+    }
+    & :global(strong) {
+      font-weight: 600;
+    }
+    & :global(a) {
+      color: #2563eb;
+      text-decoration: underline;
+    }
+    & :global(a:hover) {
+      color: #1d4ed8;
+    }
+    & :global(li) {
+      margin-bottom: 0.5rem;
+    }
   }
 </style>
 

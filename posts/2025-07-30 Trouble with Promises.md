@@ -1,10 +1,10 @@
 ---
-slug: "your-promises-are-still-running"
-title: "Your Promises Are Still Running (Even After You've Moved On)"
+slug: "the-trouble-with-promises"
+title: "The Trouble With Promises"
 date: "2025-07-30 20:10"
 publish: true
 tags: ["javascript", "typescript", "async", "structured concurrency"]
-description: "Exploring the hidden pitfalls of JavaScript Promises: why uncancelled promises can quietly keep running, how it can lead to subtle bugs, and what we can do about it."
+description: "Why your promises may till be running even after you've moved on."
 ---
 
 Today I've been playing around with the [Effection](https://frontside.com/effection/) library. Effection is all about this fun programming concept of "Structured Concurrency". It sounds complicated - and it does take a bit to wrap your head around - but the core idea is pretty simple. 
@@ -100,13 +100,13 @@ setImmediate(() =>
 
 But when we include our `Fail!`, the requests are left in progress!
 
-```typescript
+```typescript {6}
 try {
   await Promise.all([
     fetchPerson(1),
     fetchPerson(2),
     fetchPerson(3),
-    fail(), // [!code highlight]
+    fail(),
   ])
 } catch (error) {
   console.log(error)
@@ -162,8 +162,8 @@ async function fetchPerson (id: number, signal?: AbortSignal): Promise<Person> {
 Now, when we fetch people, we can pass in an AbortSignal.
 When we hit an error, we can send an `abort()` message, which will ensure all our fetch requests are cancelled and we have no more background threads. 
 
-```typescript
-const abortController = new AbortController() // [!code highlight]
+```typescript {1, 10-11}
+const abortController = new AbortController()
 try {
   await Promise.all([
     fetchPerson(1, abortController.signal),
@@ -172,8 +172,8 @@ try {
     fail(),
   ])
 } catch (error) {
-  // alert all promises that they should stop now // [!code highlight]
-  abortController.abort() // [!code highlight]
+  // alert all promises that they should stop now
+  abortController.abort()
   console.log(error) // Error: Fail!
 }
 

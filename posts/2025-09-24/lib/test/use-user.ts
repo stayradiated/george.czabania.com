@@ -3,7 +3,7 @@ import { createFactory } from "test-fixture-factory"
 
 import type { DB } from "#lib/types.js"
 
-import { genId } from "#lib/utils/gen-id.js"
+import { randomULID } from "#lib/utils/ulid.js"
 
 import { deleteUser } from "#lib/db/user/delete-user.js"
 import { insertUser } from "#lib/db/user/insert-user.js"
@@ -19,7 +19,7 @@ const userFactory = createFactory("User")
     const user = await insertUser({
       db,
       user: {
-        id: genId(),
+        id: randomULID(),
         name: "Test User",
         email: "test@example.com",
         image: null,

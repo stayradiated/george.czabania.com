@@ -4,7 +4,7 @@ import { createFactory } from "test-fixture-factory"
 import type { DB } from "#lib/types.js"
 
 import { WorkspaceStatus } from "#lib/enums.js"
-import { genId } from "#lib/utils/gen-id.js"
+import { randomULID } from "#lib/utils/ulid.js"
 
 import { deleteWorkspace } from "#lib/db/workspace/delete-workspace.js"
 import { insertWorkspace } from "#lib/db/workspace/insert-workspace.js"
@@ -20,11 +20,11 @@ const workspaceFactory = createFactory("Workspace")
     const workspace = await insertWorkspace({
       db,
       workspace: {
-        id: genId(),
+        id: randomULID(),
         icon: "😃",
         name: "Worky McWorkspace",
         status: WorkspaceStatus.ACTIVE,
-        publicId: `test:${genId()}`,
+        publicId: `test:${randomULID()}`,
         version: 1,
         icp: "",
         strategy: "",

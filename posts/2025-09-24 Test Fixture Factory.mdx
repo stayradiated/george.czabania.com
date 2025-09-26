@@ -205,7 +205,21 @@ To create a document, we need:
 
 Ideally, the test shouldn't need to manually pass in the `workspaceId` and `userId` values. If there is a `workspace` and a `user` available in the context, then the factory should use those.
 
-Notice how our Test Context requires `workspace` and `user`, while our schema has slightly different names: workspaceId` and `publicId`. We use the field `.from()` method again, but this time pass a function as a second argument, which receives the test context and returns the value, so we can get the ID of the workspace.
+Notice how `.withContext()` requires `workspace` and `user` objects, while the `.withSchema()` requires `workspaceId` and `userId`. This is so I can easily specify a different ID in the test if I want.
+
+For example, I can use `createWorkspace` to create a new workspace, and then pass that to `createDocument` to create a new document in that workspace. I could also do the same thing for `userId`.
+
+```typescript
+test("creates a new document", async ({ createWorkspace, create, createDocument }) => {
+  const customWorkspace = await createWorkspace()
+
+  const document = await createDocument({
+    workspaceId: customWorkspace.id,
+  })
+})
+```
+
+To extract the IDs from the objects in the context, we use the `.from()` method again, but this time pass a function as a second argument, which receives the test context and returns the value, so we can get the ID of the workspace.
 
 <Code
     code={import("./2025-09-24/lib/test/use-document.ts?raw")}

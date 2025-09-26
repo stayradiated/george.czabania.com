@@ -5,7 +5,7 @@ import type { UserId, WorkspaceId } from "#lib/ids.js"
 import type { DB, User, Workspace } from "#lib/types.js"
 
 import { DocumentStatus } from "#lib/enums.js"
-import { genId } from "#lib/utils/gen-id.js"
+import { randomULID } from "#lib/utils/ulid.js"
 
 import { deleteDocument } from "#lib/db/document/delete-document.js"
 import { insertDocument } from "#lib/db/document/insert-document.js"
@@ -26,7 +26,7 @@ const documentFactory = createFactory("Document")
     const document = await insertDocument({
       db,
       document: {
-        id: genId(),
+        id: randomULID(),
         workspaceId,
         createdByUserId: userId,
         status: DocumentStatus.ACTIVE,

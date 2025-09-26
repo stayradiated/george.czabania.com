@@ -4,7 +4,7 @@ import { test as baseTest, expect } from "vitest"
 import type { DB, Document, User, Workspace } from "#lib/types.js"
 
 import { DocumentStatus, WorkspaceStatus } from "#lib/enums.js"
-import { genId } from "#lib/utils/gen-id.js"
+import { randomULID } from "#lib/utils/ulid.js"
 import { getDb } from "#lib/db/get-db.js"
 
 import { deleteDocument } from "#lib/db/document/delete-document.js"
@@ -29,11 +29,11 @@ const test = baseTest.extend<{
     const workspace = await insertWorkspace({
       db,
       workspace: {
-        id: genId(),
+        id: randomULID(),
         icon: "😀",
         name: "Worky McWorkspace",
         status: WorkspaceStatus.ACTIVE,
-        publicId: `test:${genId()}`,
+        publicId: `test:${randomULID()}`,
         version: 1,
         icp: "",
         strategy: "",
@@ -49,7 +49,7 @@ const test = baseTest.extend<{
     const user = await insertUser({
       db,
       user: {
-        id: genId(),
+        id: randomULID(),
         name: "Test User",
         email: "test@example.com",
         image: null,
@@ -65,7 +65,7 @@ const test = baseTest.extend<{
       const document = await insertDocument({
         db,
         document: {
-          id: genId(),
+          id: randomULID(),
           workspaceId: workspace.id,
           createdByUserId: user.id,
           status: DocumentStatus.ACTIVE,

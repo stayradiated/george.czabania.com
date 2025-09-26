@@ -2,7 +2,7 @@ import { assertOk } from "@stayradiated/error-boundary"
 import { expect, test } from "vitest"
 
 import { DocumentStatus, WorkspaceStatus } from "#lib/enums.js"
-import { genId } from "#lib/utils/gen-id.js"
+import { randomULID } from "#lib/utils/ulid.js"
 import { getDb } from "#lib/db/get-db.js"
 
 import { deleteDocument } from "#lib/db/document/delete-document.js"
@@ -19,11 +19,11 @@ test("initial public ID should be 1", async () => {
   const workspace = await insertWorkspace({
     db,
     workspace: {
-      id: genId(),
+      id: randomULID(),
       icon: "😀",
       name: "Worky McWorkspace",
       status: WorkspaceStatus.ACTIVE,
-      publicId: `test:${genId()}`,
+      publicId: `test:${randomULID()}`,
       version: 1,
       icp: "",
       strategy: "",
@@ -51,11 +51,11 @@ test("should return the next public ID", async () => {
   const workspace = await insertWorkspace({
     db,
     workspace: {
-      id: genId(),
+      id: randomULID(),
       icon: "😀",
       name: "Worky McWorkspace",
       status: WorkspaceStatus.ACTIVE,
-      publicId: `test:${genId()}`,
+      publicId: `test:${randomULID()}`,
       version: 1,
       icp: "",
       strategy: "",
@@ -68,7 +68,7 @@ test("should return the next public ID", async () => {
   const user = await insertUser({
     db,
     user: {
-      id: genId(),
+      id: randomULID(),
       name: "Test User",
       email: "test@example.com",
       image: null,
@@ -79,7 +79,7 @@ test("should return the next public ID", async () => {
   const document = await insertDocument({
     db,
     document: {
-      id: genId(),
+      id: randomULID(),
       workspaceId: workspace.id,
       version: 1,
       status: DocumentStatus.ACTIVE,

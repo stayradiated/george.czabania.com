@@ -1,7 +1,7 @@
 export const WorkspaceStatus = {
   ACTIVE: "ACTIVE",
-} as const
+} as const;
 
 export const DocumentStatus = {
   ACTIVE: "ACTIVE",
-} as const
+} as const;

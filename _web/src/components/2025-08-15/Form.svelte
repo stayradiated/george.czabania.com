@@ -1,14 +1,14 @@
 <script lang="ts">
 import { untrack } from "svelte";
 import Button from "#src/components/ui/Button.svelte";
+import Card from "#src/components/ui/Card.svelte";
+import Title from "#src/components/ui/Title.svelte";
 import DebouncedInput from "../DebouncedInput.svelte";
 import DropdownMenu from "../DropdownMenu.svelte";
 import Emoji from "../Emoji.svelte";
 import EmojiPicker from "../EmojiPicker.svelte";
 import Sparkles from "../icons/Sparkles.svelte";
 import { getDescription } from "./get-description.js";
-import Card from "#src/components/ui/Card.svelte";
-import Title from "#src/components/ui/Title.svelte";
 
 type Label = {
   name: string;

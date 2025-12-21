@@ -1,13 +1,13 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
+import type { Snippet } from "svelte";
 
-  type Props = {
-    header?: Snippet;
-    children?: Snippet;
-    footer?: Snippet;
-  };
+type Props = {
+  header?: Snippet;
+  children?: Snippet;
+  footer?: Snippet;
+};
 
-  const { header, children, footer }: Props = $props();
+const { header, children, footer }: Props = $props();
 </script>
 
 <div class="card">

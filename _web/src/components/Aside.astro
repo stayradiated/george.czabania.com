@@ -5,7 +5,7 @@ interface Props {
   variant?: "tip" | "caution" | "danger" | "info";
 }
 
-const { variant = 'info', title } = Astro.props as Props;
+const { variant = "info", title } = Astro.props as Props;
 
 const icon = (() => {
   switch (variant) {

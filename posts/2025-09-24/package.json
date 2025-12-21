@@ -9,11 +9,11 @@
     "tidy": "biome check --write"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.4",
+    "@biomejs/biome": "catalog:",
     "@stayradiated/error-boundary": "4.3.0",
     "test-fixture-factory": "2.0.3",
-    "typescript": "5.9.2",
-    "vitest": "3.2.4"
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "imports": {
     "#lib/*": "./lib/*"

@@ -12,8 +12,14 @@ import icon from "astro-icon";
 // https://astro.build/config
 export default defineConfig({
   site: "https://george.czabania.com",
-  integrations: [sitemap(), svelte(), expressiveCode({
-    themes: ['light-plus']
-  }), mdx(), icon()],
+  integrations: [
+    sitemap(),
+    svelte(),
+    expressiveCode({
+      themes: ["light-plus"],
+    }),
+    mdx(),
+    icon(),
+  ],
   output: "static",
 });

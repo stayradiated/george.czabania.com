@@ -1,24 +1,24 @@
-import { assertOk } from "@stayradiated/error-boundary"
-import { createFactory } from "test-fixture-factory"
+import { assertOk } from "@stayradiated/error-boundary";
+import { createFactory } from "test-fixture-factory";
+import { deleteDocument } from "#lib/db/document/delete-document.js";
+import { insertDocument } from "#lib/db/document/insert-document.js";
 
-import type { UserId, WorkspaceId } from "#lib/ids.js"
-import type { DB, User, Workspace } from "#lib/types.js"
-
-import { DocumentStatus } from "#lib/enums.js"
-import { randomULID } from "#lib/utils/ulid.js"
-
-import { deleteDocument } from "#lib/db/document/delete-document.js"
-import { insertDocument } from "#lib/db/document/insert-document.js"
+import { DocumentStatus } from "#lib/enums.js";
+import type { UserId, WorkspaceId } from "#lib/ids.js";
+import type { DB, User, Workspace } from "#lib/types.js";
+import { randomULID } from "#lib/utils/ulid.js";
 
 const documentFactory = createFactory("Document")
   .withContext<{
-    db: DB
-    workspace: Workspace
-    user: User
+    db: DB;
+    workspace: Workspace;
+    user: User;
   }>()
   .withSchema((field) => ({
     db: field.type<DB>().from("db"),
-    workspaceId: field.type<WorkspaceId>().from("workspace", (ctx) => ctx.workspace.id),
+    workspaceId: field
+      .type<WorkspaceId>()
+      .from("workspace", (ctx) => ctx.workspace.id),
     userId: field.type<UserId>().from("user", (ctx) => ctx.user.id),
     publicId: field.type<number>().default(1),
   }))
@@ -43,18 +43,18 @@ const documentFactory = createFactory("Document")
         // pass through attrs
         publicId,
       },
-    })
-    assertOk(document)
+    });
+    assertOk(document);
 
     return {
       value: document,
       destroy: async () => {
-        await deleteDocument({ db, documentId: document.id })
+        await deleteDocument({ db, documentId: document.id });
       },
-    }
-  })
+    };
+  });
 
-const useCreateDocument = documentFactory.useCreateValue
-const useDocument = documentFactory.useValue
+const useCreateDocument = documentFactory.useCreateValue;
+const useDocument = documentFactory.useValue;
 
-export { useCreateDocument, useDocument }
+export { useCreateDocument, useDocument };

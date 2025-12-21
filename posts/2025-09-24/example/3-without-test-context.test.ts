@@ -1,21 +1,19 @@
-import { assertOk } from "@stayradiated/error-boundary"
-import { expect, test } from "vitest"
-
-import { DocumentStatus, WorkspaceStatus } from "#lib/enums.js"
-import { randomULID } from "#lib/utils/ulid.js"
-import { getDb } from "#lib/db/get-db.js"
-
-import { deleteDocument } from "#lib/db/document/delete-document.js"
-import { getNextPublicIdForDocument } from "#lib/db/document/get-next-public-id-for-document.js"
-import { insertDocument } from "#lib/db/document/insert-document.js"
-import { deleteUser } from "#lib/db/user/delete-user.js"
-import { insertUser } from "#lib/db/user/insert-user.js"
-import { deleteWorkspace } from "#lib/db/workspace/delete-workspace.js"
-import { insertWorkspace } from "#lib/db/workspace/insert-workspace.js"
+import { assertOk } from "@stayradiated/error-boundary";
+import { expect, test } from "vitest";
+import { deleteDocument } from "#lib/db/document/delete-document.js";
+import { getNextPublicIdForDocument } from "#lib/db/document/get-next-public-id-for-document.js";
+import { insertDocument } from "#lib/db/document/insert-document.js";
+import { getDb } from "#lib/db/get-db.js";
+import { deleteUser } from "#lib/db/user/delete-user.js";
+import { insertUser } from "#lib/db/user/insert-user.js";
+import { deleteWorkspace } from "#lib/db/workspace/delete-workspace.js";
+import { insertWorkspace } from "#lib/db/workspace/insert-workspace.js";
+import { DocumentStatus, WorkspaceStatus } from "#lib/enums.js";
+import { randomULID } from "#lib/utils/ulid.js";
 
 test("initial public ID should be 1", async () => {
   // SETUP
-  const db = getDb()
+  const db = getDb();
   const workspace = await insertWorkspace({
     db,
     workspace: {
@@ -30,24 +28,24 @@ test("initial public ID should be 1", async () => {
       vision: "",
       deletedAt: null,
     },
-  })
-  assertOk(workspace)
+  });
+  assertOk(workspace);
 
   // TEST
   const publicId = await getNextPublicIdForDocument({
     db,
     workspaceId: workspace.id,
-  })
+  });
 
-  expect(publicId).toBe(1)
+  expect(publicId).toBe(1);
 
   // TEARDOWN
-  await deleteWorkspace({ db, workspaceId: workspace.id })
-})
+  await deleteWorkspace({ db, workspaceId: workspace.id });
+});
 
 test("should return the next public ID", async () => {
   // SETUP
-  const db = getDb()
+  const db = getDb();
   const workspace = await insertWorkspace({
     db,
     workspace: {
@@ -62,8 +60,8 @@ test("should return the next public ID", async () => {
       vision: "",
       deletedAt: null,
     },
-  })
-  assertOk(workspace)
+  });
+  assertOk(workspace);
 
   const user = await insertUser({
     db,
@@ -73,8 +71,8 @@ test("should return the next public ID", async () => {
       email: "test@example.com",
       image: null,
     },
-  })
-  assertOk(user)
+  });
+  assertOk(user);
 
   const document = await insertDocument({
     db,
@@ -96,19 +94,19 @@ test("should return the next public ID", async () => {
       // NOTE: the value of this publicId impacts the test result
       publicId: 7,
     },
-  })
-  assertOk(document)
+  });
+  assertOk(document);
 
   // TEST
   const publicId = await getNextPublicIdForDocument({
     db,
     workspaceId: workspace.id,
-  })
+  });
 
-  expect(publicId).toBe(8)
+  expect(publicId).toBe(8);
 
   // TEARDOWN
-  await deleteDocument({ db, documentId: document.id })
-  await deleteUser({ db, userId: user.id })
-  await deleteWorkspace({ db, workspaceId: workspace.id })
-})
+  await deleteDocument({ db, documentId: document.id });
+  await deleteUser({ db, userId: user.id });
+  await deleteWorkspace({ db, workspaceId: workspace.id });
+});

@@ -1,29 +1,26 @@
-import { assertOk } from "@stayradiated/error-boundary"
-import { test as baseTest, expect } from "vitest"
-
-import type { DB, Document, User, Workspace } from "#lib/types.js"
-
-import { DocumentStatus, WorkspaceStatus } from "#lib/enums.js"
-import { randomULID } from "#lib/utils/ulid.js"
-import { getDb } from "#lib/db/get-db.js"
-
-import { deleteDocument } from "#lib/db/document/delete-document.js"
-import { getNextPublicIdForDocument } from "#lib/db/document/get-next-public-id-for-document.js"
-import { insertDocument } from "#lib/db/document/insert-document.js"
-import { deleteUser } from "#lib/db/user/delete-user.js"
-import { insertUser } from "#lib/db/user/insert-user.js"
-import { deleteWorkspace } from "#lib/db/workspace/delete-workspace.js"
-import { insertWorkspace } from "#lib/db/workspace/insert-workspace.js"
+import { assertOk } from "@stayradiated/error-boundary";
+import { test as baseTest, expect } from "vitest";
+import { deleteDocument } from "#lib/db/document/delete-document.js";
+import { getNextPublicIdForDocument } from "#lib/db/document/get-next-public-id-for-document.js";
+import { insertDocument } from "#lib/db/document/insert-document.js";
+import { getDb } from "#lib/db/get-db.js";
+import { deleteUser } from "#lib/db/user/delete-user.js";
+import { insertUser } from "#lib/db/user/insert-user.js";
+import { deleteWorkspace } from "#lib/db/workspace/delete-workspace.js";
+import { insertWorkspace } from "#lib/db/workspace/insert-workspace.js";
+import { DocumentStatus, WorkspaceStatus } from "#lib/enums.js";
+import type { DB, Document, User, Workspace } from "#lib/types.js";
+import { randomULID } from "#lib/utils/ulid.js";
 
 const test = baseTest.extend<{
-  db: DB
-  workspace: Workspace
-  user: User
-  createDocument: (attrs: { publicId: number }) => Promise<Document>
+  db: DB;
+  workspace: Workspace;
+  user: User;
+  createDocument: (attrs: { publicId: number }) => Promise<Document>;
 }>({
   db: async ({}, use) => {
-    const db = getDb()
-    await use(db)
+    const db = getDb();
+    await use(db);
   },
   workspace: async ({ db }, use) => {
     const workspace = await insertWorkspace({
@@ -40,10 +37,10 @@ const test = baseTest.extend<{
         vision: "",
         deletedAt: null,
       },
-    })
-    assertOk(workspace)
-    await use(workspace)
-    await deleteWorkspace({ db, workspaceId: workspace.id })
+    });
+    assertOk(workspace);
+    await use(workspace);
+    await deleteWorkspace({ db, workspaceId: workspace.id });
   },
   user: async ({ db }, use) => {
     const user = await insertUser({
@@ -54,13 +51,13 @@ const test = baseTest.extend<{
         email: "test@example.com",
         image: null,
       },
-    })
-    assertOk(user)
-    await use(user)
-    await deleteUser({ db, userId: user.id })
+    });
+    assertOk(user);
+    await use(user);
+    await deleteUser({ db, userId: user.id });
   },
   createDocument: async ({ db, user, workspace }, use) => {
-    const documentList: Document[] = []
+    const documentList: Document[] = [];
     await use(async (attrs) => {
       const document = await insertDocument({
         db,
@@ -82,33 +79,37 @@ const test = baseTest.extend<{
           // pass through attrs
           publicId: attrs.publicId,
         },
-      })
-      assertOk(document)
-      documentList.push(document)
-      return document
-    })
+      });
+      assertOk(document);
+      documentList.push(document);
+      return document;
+    });
     for (const document of documentList) {
-      await deleteDocument({ db, documentId: document.id })
+      await deleteDocument({ db, documentId: document.id });
     }
   },
-})
+});
 
 test("initial public ID should be 1", async ({ db, workspace }) => {
   const publicId = await getNextPublicIdForDocument({
     db,
     workspaceId: workspace.id,
-  })
+  });
 
-  expect(publicId).toBe(1)
-})
+  expect(publicId).toBe(1);
+});
 
-test("should return the next public ID", async ({ db, workspace, createDocument }) => {
-  await createDocument({ publicId: 7 })
+test("should return the next public ID", async ({
+  db,
+  workspace,
+  createDocument,
+}) => {
+  await createDocument({ publicId: 7 });
 
   const publicId = await getNextPublicIdForDocument({
     db,
     workspaceId: workspace.id,
-  })
+  });
 
-  expect(publicId).toBe(8)
-})
+  expect(publicId).toBe(8);
+});

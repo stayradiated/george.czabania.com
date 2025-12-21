@@ -1,5 +1,5 @@
 {
-  "name": "george.czabania.com",
+  "name": "web.george.czabania.com",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
@@ -7,33 +7,33 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "tidy": "biome check --write --unsafe ..",
+    "tidy": "biome check --write --unsafe .",
     "pollen": "pollen --output ./src/pollen.css"
   },
   "dependencies": {
-    "@astrojs/mdx": "4.3.6",
-    "@astrojs/rss": "4.0.12",
+    "@astrojs/mdx": "4.3.13",
+    "@astrojs/rss": "4.0.14",
     "@astrojs/sitemap": "3.6.0",
-    "@astrojs/svelte": "7.2.0",
-    "@expressive-code/plugin-collapsible-sections": "0.41.3",
+    "@astrojs/svelte": "7.2.4",
+    "@expressive-code/plugin-collapsible-sections": "0.41.5",
     "@floating-ui/core": "1.7.3",
     "@floating-ui/dom": "1.7.4",
-    "@iconify-json/lucide": "1.2.68",
+    "@iconify-json/lucide": "1.2.81",
     "@stayradiated/error-boundary": "4.3.0",
-    "astro": "5.13.11",
-    "astro-expressive-code": "^0.41.3",
+    "astro": "5.16.6",
+    "astro-expressive-code": "^0.41.5",
     "astro-icon": "^1.1.5",
     "emoji-mart": "5.6.0",
-    "es-toolkit": "1.39.10",
-    "groq-sdk": "0.32.0",
-    "match-sorter": "8.1.0",
+    "es-toolkit": "1.43.0",
+    "groq-sdk": "0.37.0",
+    "match-sorter": "8.2.0",
     "pollen-css": "5.0.2",
-    "svelte": "5.39.6",
-    "typescript": "5.9.2",
-    "zod": "4.1.11"
+    "svelte": "5.46.0",
+    "typescript": "catalog:",
+    "zod": "4.2.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.4",
-    "@lucide/svelte": "0.544.0"
+    "@biomejs/biome": "catalog:",
+    "@lucide/svelte": "0.562.0"
   }
 }

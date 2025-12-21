@@ -1,9 +1,9 @@
 <script lang="ts">
+import Card from "#src/components/ui/Card.svelte";
+import Title from "#src/components/ui/Title.svelte";
 import Form from "./Form.svelte";
 import InsightForm from "./InsightForm.svelte";
 import LabelBadge from "./LabelBadge.svelte";
-import Card from "#src/components/ui/Card.svelte";
-import Title from "#src/components/ui/Title.svelte";
 
 type Label = {
   name: string;

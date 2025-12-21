@@ -1,17 +1,14 @@
-import { assertOk } from "@stayradiated/error-boundary"
-import { createFactory } from "test-fixture-factory"
-
-import type { DB } from "#lib/types.js"
-
-import { WorkspaceStatus } from "#lib/enums.js"
-import { randomULID } from "#lib/utils/ulid.js"
-
-import { deleteWorkspace } from "#lib/db/workspace/delete-workspace.js"
-import { insertWorkspace } from "#lib/db/workspace/insert-workspace.js"
+import { assertOk } from "@stayradiated/error-boundary";
+import { createFactory } from "test-fixture-factory";
+import { deleteWorkspace } from "#lib/db/workspace/delete-workspace.js";
+import { insertWorkspace } from "#lib/db/workspace/insert-workspace.js";
+import { WorkspaceStatus } from "#lib/enums.js";
+import type { DB } from "#lib/types.js";
+import { randomULID } from "#lib/utils/ulid.js";
 
 const workspaceFactory = createFactory("Workspace")
   .withContext<{
-    db: DB
+    db: DB;
   }>()
   .withSchema((field) => ({
     db: field.type<DB>().from("db"),
@@ -31,18 +28,18 @@ const workspaceFactory = createFactory("Workspace")
         vision: "",
         deletedAt: null,
       },
-    })
-    assertOk(workspace)
+    });
+    assertOk(workspace);
 
     return {
       value: workspace,
       destroy: async () => {
-        await deleteWorkspace({ db, workspaceId: workspace.id })
+        await deleteWorkspace({ db, workspaceId: workspace.id });
       },
-    }
-  })
+    };
+  });
 
-const useCreateWorkspace = workspaceFactory.useCreateValue
-const useWorkspace = workspaceFactory.useValue
+const useCreateWorkspace = workspaceFactory.useCreateValue;
+const useWorkspace = workspaceFactory.useValue;
 
-export { useCreateWorkspace, useWorkspace }
+export { useCreateWorkspace, useWorkspace };

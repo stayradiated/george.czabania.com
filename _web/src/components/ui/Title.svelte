@@ -1,14 +1,14 @@
 <script lang="ts">
-import type { Snippet } from 'svelte'
+import type { Snippet } from "svelte";
 
 type Props = {
-  level?: 1 | 2 | 3 | 4 | 5 | 6
-  flex?: boolean
-  inline?: boolean
-  children: Snippet
-}
+  level?: 1 | 2 | 3 | 4 | 5 | 6;
+  flex?: boolean;
+  inline?: boolean;
+  children: Snippet;
+};
 
-const { level = 1, flex = false, inline = false, children }: Props = $props()
+const { level = 1, flex = false, inline = false, children }: Props = $props();
 </script>
 
 {#if level === 1}

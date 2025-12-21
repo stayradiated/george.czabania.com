@@ -3,8 +3,8 @@ import { untrack } from "svelte";
 import { fade } from "svelte/transition";
 import Button from "#src/components/ui/Button.svelte";
 import Card from "#src/components/ui/Card.svelte";
-import Emoji from "../Emoji.svelte";
 import Title from "#src/components/ui/Title.svelte";
+import Emoji from "../Emoji.svelte";
 import Sparkles from "../icons/Sparkles.svelte";
 import { getLabel } from "./get-label.js";
 
